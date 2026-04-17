@@ -80,28 +80,34 @@ const TOOLS = [
     description: 'Convert PDF to editable Word documents',
     category: 'Convert from PDF', group: 'pdf', badge: 'PDF',
     apiEndpoint: '/api/pdf-to-word', acceptedFiles: '.pdf',
-    multipleFiles: false, working: false, options: []
+    multipleFiles: false, working: true, options: []
   },
   {
     id: 'pdf-to-powerpoint', name: 'PDF to PowerPoint', icon: 'layout',
     description: 'Transform PDFs into editable presentations',
     category: 'Convert from PDF', group: 'pdf', badge: 'PDF',
     apiEndpoint: '/api/pdf-to-powerpoint', acceptedFiles: '.pdf',
-    multipleFiles: false, working: false, options: []
+    multipleFiles: false, working: true, options: []
   },
   {
     id: 'pdf-to-excel', name: 'PDF to Excel', icon: 'table',
     description: 'Extract tables from PDFs into spreadsheets',
     category: 'Convert from PDF', group: 'pdf', badge: 'PDF',
     apiEndpoint: '/api/pdf-to-excel', acceptedFiles: '.pdf',
-    multipleFiles: false, working: false, options: []
+    multipleFiles: false, working: true, options: []
   },
   {
     id: 'pdf-to-jpg', name: 'PDF to JPG', icon: 'image',
-    description: 'Convert PDF pages into high-quality images',
+    description: 'Convert PDF pages into high-quality JPG images',
     category: 'Convert from PDF', group: 'pdf', badge: 'PDF',
     apiEndpoint: '/api/pdf-to-jpg', acceptedFiles: '.pdf',
-    multipleFiles: false, working: false, options: []
+    multipleFiles: false, working: true,
+    options: [
+      { id: 'quality', label: 'Image Quality', type: 'select', options: [
+        { value: 'standard', label: 'Standard (150 DPI)' },
+        { value: 'high',     label: 'High (200 DPI)' }
+      ]}
+    ]
   },
   // ── CONVERT TO PDF ────────────────────────────────────────────────────────
   {
@@ -109,21 +115,21 @@ const TOOLS = [
     description: 'Convert Word documents to PDF format',
     category: 'Convert to PDF', group: 'pdf', badge: 'PDF',
     apiEndpoint: '/api/word-to-pdf', acceptedFiles: '.doc,.docx',
-    multipleFiles: false, working: false, options: []
+    multipleFiles: false, working: true, options: []
   },
   {
     id: 'powerpoint-to-pdf', name: 'PowerPoint to PDF', icon: 'monitor',
     description: 'Convert presentations to PDF format',
     category: 'Convert to PDF', group: 'pdf', badge: 'PDF',
     apiEndpoint: '/api/powerpoint-to-pdf', acceptedFiles: '.ppt,.pptx',
-    multipleFiles: false, working: false, options: []
+    multipleFiles: false, working: true, options: []
   },
   {
     id: 'excel-to-pdf', name: 'Excel to PDF', icon: 'grid',
     description: 'Convert Excel spreadsheets to PDF',
     category: 'Convert to PDF', group: 'pdf', badge: 'PDF',
     apiEndpoint: '/api/excel-to-pdf', acceptedFiles: '.xls,.xlsx',
-    multipleFiles: false, working: false, options: []
+    multipleFiles: false, working: true, options: []
   },
   {
     id: 'jpg-to-pdf', name: 'JPG to PDF', icon: 'file-image',
@@ -137,7 +143,7 @@ const TOOLS = [
     description: 'Convert HTML files into PDF documents',
     category: 'Convert to PDF', group: 'pdf', badge: 'PDF',
     apiEndpoint: '/api/html-to-pdf', acceptedFiles: '.html,.htm',
-    multipleFiles: false, working: false, options: []
+    multipleFiles: false, working: true, options: []
   },
   // ── EDIT & ANNOTATE ───────────────────────────────────────────────────────
   {
@@ -221,14 +227,20 @@ const TOOLS = [
     description: 'Encrypt your PDF with a password',
     category: 'Security', group: 'pdf', badge: 'PDF',
     apiEndpoint: '/api/protect', acceptedFiles: '.pdf',
-    multipleFiles: false, working: false, options: []
+    multipleFiles: false, working: true,
+    options: [
+      { id: 'password', label: 'Password', type: 'text', placeholder: 'Enter a password' }
+    ]
   },
   {
     id: 'unlock', name: 'Unlock PDF', icon: 'unlock',
     description: 'Remove password protection from a PDF',
     category: 'Security', group: 'pdf', badge: 'PDF',
     apiEndpoint: '/api/unlock', acceptedFiles: '.pdf',
-    multipleFiles: false, working: false, options: []
+    multipleFiles: false, working: true,
+    options: [
+      { id: 'password', label: 'Current Password (if known)', type: 'text', placeholder: 'Leave blank if unsure' }
+    ]
   },
   // ── ADVANCED ──────────────────────────────────────────────────────────────
   {
@@ -236,7 +248,7 @@ const TOOLS = [
     description: 'Fix corrupted or damaged PDF files',
     category: 'Advanced Tools', group: 'pdf', badge: 'Utility',
     apiEndpoint: '/api/repair', acceptedFiles: '.pdf',
-    multipleFiles: false, working: false, options: []
+    multipleFiles: false, working: true, options: []
   },
   {
     id: 'scan-to-pdf', name: 'Scan to PDF', icon: 'scan-line',
@@ -247,53 +259,107 @@ const TOOLS = [
   },
   {
     id: 'ocr', name: 'OCR PDF', icon: 'type',
-    description: 'Extract text from scanned PDFs using OCR',
+    description: 'Extract and copy text from your PDF document',
     category: 'Advanced Tools', group: 'pdf', badge: 'AI',
     apiEndpoint: '/api/ocr', acceptedFiles: '.pdf',
-    multipleFiles: false, working: false, options: []
+    multipleFiles: false, working: true, options: []
   },
   {
     id: 'compare', name: 'Compare PDF', icon: 'columns',
     description: 'Find differences between two PDF files',
     category: 'Advanced Tools', group: 'pdf', badge: 'Utility',
     apiEndpoint: '/api/compare', acceptedFiles: '.pdf',
-    multipleFiles: true, working: false, options: []
+    multipleFiles: true, working: true, options: []
   },
   {
     id: 'ai-summarize', name: 'AI Summarizer', icon: 'sparkles',
-    description: 'Summarize PDF content with AI',
+    description: 'Summarize PDF content with smart extraction',
     category: 'Advanced Tools', group: 'pdf', badge: 'AI',
     apiEndpoint: '/api/ai-summarize', acceptedFiles: '.pdf',
-    multipleFiles: false, working: false, options: []
+    multipleFiles: false, working: true,
+    options: [
+      { id: 'sentences', label: 'Summary Length (number of key sentences)', type: 'number', placeholder: '7' }
+    ]
   },
   {
     id: 'translate', name: 'Translate PDF', icon: 'languages',
     description: 'Translate PDF documents into any language',
     category: 'Advanced Tools', group: 'pdf', badge: 'AI',
     apiEndpoint: '/api/translate', acceptedFiles: '.pdf',
-    multipleFiles: false, working: false, options: []
+    multipleFiles: false, working: true,
+    options: [
+      { id: 'targetLang', label: 'Target Language', type: 'select', options: [
+        { value: 'es', label: 'Spanish' },
+        { value: 'fr', label: 'French' },
+        { value: 'de', label: 'German' },
+        { value: 'it', label: 'Italian' },
+        { value: 'pt', label: 'Portuguese' },
+        { value: 'nl', label: 'Dutch' },
+        { value: 'ru', label: 'Russian' },
+        { value: 'zh', label: 'Chinese' },
+        { value: 'ja', label: 'Japanese' },
+        { value: 'ar', label: 'Arabic' },
+        { value: 'hi', label: 'Hindi' },
+        { value: 'ko', label: 'Korean' }
+      ]}
+    ]
   },
   {
     id: 'workflow', name: 'Workflow Builder', icon: 'git-branch',
-    description: 'Automate multi-step PDF processing pipelines',
+    description: 'Chain multiple PDF operations in a single pass',
     category: 'Advanced Tools', group: 'pdf', badge: 'Utility',
     apiEndpoint: '/api/workflow', acceptedFiles: '.pdf',
-    multipleFiles: false, working: false, options: []
+    multipleFiles: false, working: true,
+    options: [
+      { id: 'step1', label: 'Step 1 — Operation', type: 'select', options: [
+        { value: '',           label: '— Select operation —' },
+        { value: 'compress',   label: 'Compress' },
+        { value: 'rotate-90',  label: 'Rotate 90°' },
+        { value: 'rotate-180', label: 'Rotate 180°' },
+        { value: 'watermark',  label: 'Add Watermark' },
+        { value: 'page-numbers', label: 'Add Page Numbers' },
+        { value: 'sign',       label: 'Add Signature' }
+      ]},
+      { id: 'step1_value', label: 'Step 1 — Text Value (for Watermark / Signature)', type: 'text', placeholder: 'e.g. DRAFT or John Doe' },
+      { id: 'step2', label: 'Step 2 — Operation (optional)', type: 'select', options: [
+        { value: '',           label: '— None —' },
+        { value: 'compress',   label: 'Compress' },
+        { value: 'rotate-90',  label: 'Rotate 90°' },
+        { value: 'rotate-180', label: 'Rotate 180°' },
+        { value: 'watermark',  label: 'Add Watermark' },
+        { value: 'page-numbers', label: 'Add Page Numbers' },
+        { value: 'sign',       label: 'Add Signature' }
+      ]},
+      { id: 'step2_value', label: 'Step 2 — Text Value (optional)', type: 'text', placeholder: '' },
+      { id: 'step3', label: 'Step 3 — Operation (optional)', type: 'select', options: [
+        { value: '',           label: '— None —' },
+        { value: 'compress',   label: 'Compress' },
+        { value: 'rotate-90',  label: 'Rotate 90°' },
+        { value: 'rotate-180', label: 'Rotate 180°' },
+        { value: 'watermark',  label: 'Add Watermark' },
+        { value: 'page-numbers', label: 'Add Page Numbers' },
+        { value: 'sign',       label: 'Add Signature' }
+      ]},
+      { id: 'step3_value', label: 'Step 3 — Text Value (optional)', type: 'text', placeholder: '' }
+    ]
   },
   // ── IMAGE TOOLS ───────────────────────────────────────────────────────────
   {
     id: 'background-remover', name: 'Background Remover', icon: 'image-minus',
-    description: 'Remove image backgrounds automatically with AI',
+    description: 'Remove white or near-white backgrounds from images',
     category: 'Image Tools', group: 'image', badge: 'AI',
     apiEndpoint: '/api/background-remove', acceptedFiles: '.jpg,.jpeg,.png,.webp',
-    multipleFiles: false, working: false, options: []
+    multipleFiles: false, working: true,
+    options: [
+      { id: 'threshold', label: 'Background Threshold (180–255, higher = stricter)', type: 'number', placeholder: '240' }
+    ]
   },
   {
     id: 'crop-image', name: 'Crop Image', icon: 'crop',
     description: 'Crop and trim your images with precision controls',
     category: 'Image Tools', group: 'image', badge: 'Image',
     apiEndpoint: '/api/crop-image', acceptedFiles: '.jpg,.jpeg,.png,.webp',
-    multipleFiles: false, working: false,
+    multipleFiles: false, working: true,
     options: [
       { id: 'x',      label: 'X Offset (%)',  type: 'number', placeholder: '0'   },
       { id: 'y',      label: 'Y Offset (%)',  type: 'number', placeholder: '0'   },
@@ -306,32 +372,34 @@ const TOOLS = [
     description: 'Resize images with presets: 1:1, 16:9, A4, HD, or custom',
     category: 'Image Tools', group: 'image', badge: 'Image',
     apiEndpoint: '/api/resize-image', acceptedFiles: '.jpg,.jpeg,.png,.webp',
-    multipleFiles: false, working: false,
+    multipleFiles: false, working: true,
     options: [
       { id: 'preset', label: 'Preset', type: 'select', options: [
         { value: 'custom',  label: 'Custom' },
-        { value: '1:1',     label: '1:1 Square' },
-        { value: '16:9',    label: '16:9 Widescreen' },
-        { value: 'a4',      label: 'A4 (2480 × 3508)' },
-        { value: 'hd',      label: 'HD (1920 × 1080)' }
+        { value: '1:1',     label: '1:1 Square (1080×1080)' },
+        { value: '16:9',    label: '16:9 Widescreen (1920×1080)' },
+        { value: 'a4',      label: 'A4 (2480×3508)' },
+        { value: 'hd',      label: 'HD (1920×1080)' }
       ]},
-      { id: 'width',  label: 'Width (px)',  type: 'number', placeholder: '800' },
-      { id: 'height', label: 'Height (px)', type: 'number', placeholder: '600' }
+      { id: 'width',  label: 'Custom Width (px)',  type: 'number', placeholder: '800' },
+      { id: 'height', label: 'Custom Height (px)', type: 'number', placeholder: '600' }
     ]
   },
   {
     id: 'image-filters', name: 'Image Filters', icon: 'sliders',
-    description: 'Apply grayscale, brightness, blur, sepia, and more',
+    description: 'Apply grayscale, sepia, blur, brightness, contrast and more',
     category: 'Image Tools', group: 'image', badge: 'Image',
     apiEndpoint: '/api/filters', acceptedFiles: '.jpg,.jpeg,.png,.webp',
-    multipleFiles: false, working: false,
+    multipleFiles: false, working: true,
     options: [
       { id: 'filter', label: 'Filter Effect', type: 'select', options: [
         { value: 'grayscale', label: 'Grayscale' },
         { value: 'sepia',     label: 'Sepia' },
         { value: 'blur',      label: 'Blur' },
         { value: 'brighten',  label: 'Brightness Boost' },
-        { value: 'contrast',  label: 'High Contrast' }
+        { value: 'contrast',  label: 'High Contrast' },
+        { value: 'sharpen',   label: 'Sharpen' },
+        { value: 'invert',    label: 'Invert Colors' }
       ]}
     ]
   },

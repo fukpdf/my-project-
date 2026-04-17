@@ -6,21 +6,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const toolId = params.get('id');
 
   currentTool = TOOLS.find(t => t.id === toolId);
-  if (!currentTool) {
-    window.location.href = '/';
-    return;
-  }
+  if (!currentTool) { window.location.href = '/'; return; }
 
   buildSidebar(currentTool.id);
   renderToolPage(currentTool);
 });
+
+// ── RENDER TOOL PAGE ───────────────────────────────────────────────────────
 
 function renderToolPage(tool) {
   const catMeta = CATEGORIES.find(c => c.name === tool.category);
   const color = catMeta ? catMeta.color : '#6366f1';
 
   document.title = `${tool.name} — PDF Tools Pro`;
-
   const topbarTitle = document.getElementById('topbar-title');
   if (topbarTitle) topbarTitle.textContent = tool.name;
 
@@ -33,7 +31,7 @@ function renderToolPage(tool) {
     : `<span class="tool-status status-soon"><span class="status-dot"></span>Coming Soon</span>`;
 
   let optionsHtml = '';
-  if (tool.options.length > 0) {
+  if (tool.options && tool.options.length > 0) {
     const fields = tool.options.map(opt => {
       if (opt.type === 'select') {
         const opts = opt.options.map(o => `<option value="${o.value}">${o.label}</option>`).join('');
@@ -41,24 +39,21 @@ function renderToolPage(tool) {
           <div class="form-group">
             <label class="form-label">${opt.label}</label>
             <select class="form-select" name="${opt.id}" id="opt-${opt.id}">${opts}</select>
-          </div>
-        `;
+          </div>`;
       }
       return `
         <div class="form-group">
           <label class="form-label">${opt.label}</label>
           <input class="form-input" type="${opt.type}" name="${opt.id}" id="opt-${opt.id}"
             placeholder="${opt.placeholder || ''}" ${opt.required ? 'required' : ''}>
-        </div>
-      `;
+        </div>`;
     }).join('');
 
     optionsHtml = `
       <div class="options-section">
         <div class="options-title"><i data-lucide="sliders-horizontal"></i> Options</div>
         <div class="options-grid">${fields}</div>
-      </div>
-    `;
+      </div>`;
   }
 
   const fileLabel = tool.multipleFiles ? 'Upload Files' : 'Upload File';
@@ -110,18 +105,19 @@ function renderToolPage(tool) {
   setupFileInput();
 }
 
+// ── FILE INPUT ─────────────────────────────────────────────────────────────
+
 function setupFileInput() {
   const input = document.getElementById('file-input');
-  const area = document.getElementById('upload-area');
+  const area  = document.getElementById('upload-area');
   if (!input || !area) return;
 
+  area.addEventListener('click', () => input.click());
   input.addEventListener('change', () => handleFiles(input.files));
-
-  area.addEventListener('dragover', e => { e.preventDefault(); area.classList.add('dragover'); });
+  area.addEventListener('dragover',  e => { e.preventDefault(); area.classList.add('dragover'); });
   area.addEventListener('dragleave', () => area.classList.remove('dragover'));
   area.addEventListener('drop', e => {
-    e.preventDefault();
-    area.classList.remove('dragover');
+    e.preventDefault(); area.classList.remove('dragover');
     handleFiles(e.dataTransfer.files);
   });
 }
@@ -137,7 +133,7 @@ function handleFiles(fileList) {
 }
 
 function renderFileList() {
-  const list = document.getElementById('files-list');
+  const list     = document.getElementById('files-list');
   const clearBtn = document.getElementById('clear-btn');
   if (!list) return;
 
@@ -146,7 +142,6 @@ function renderFileList() {
     if (clearBtn) clearBtn.style.display = 'none';
     return;
   }
-
   if (clearBtn) clearBtn.style.display = 'inline-flex';
 
   list.innerHTML = selectedFiles.map((f, i) => `
@@ -162,10 +157,7 @@ function renderFileList() {
   lucide.createIcons();
 }
 
-function removeFile(index) {
-  selectedFiles.splice(index, 1);
-  renderFileList();
-}
+function removeFile(index) { selectedFiles.splice(index, 1); renderFileList(); }
 
 function clearAll() {
   selectedFiles = [];
@@ -175,14 +167,14 @@ function clearAll() {
   if (input) input.value = '';
 }
 
+// ── PROCESS FILE ───────────────────────────────────────────────────────────
+
 async function processFile() {
   if (!currentTool) return;
-
   if (selectedFiles.length === 0) {
     showStatus('error', 'No file selected', 'Please upload a file before processing.');
     return;
   }
-
   if (!currentTool.working) {
     showComingSoon(currentTool.name);
     return;
@@ -191,11 +183,14 @@ async function processFile() {
   const formData = new FormData();
 
   if (currentTool.multipleFiles) {
-    const fieldName = currentTool.id.includes('jpg') || currentTool.id === 'scan-to-pdf' ? 'images' : 'pdfs';
-    selectedFiles.forEach(f => formData.append(fieldName, f));
+    const isImgInput = currentTool.group === 'image' ||
+                       currentTool.id === 'scan-to-pdf' ||
+                       currentTool.id === 'jpg-to-pdf';
+    const field = isImgInput ? 'images' : 'pdfs';
+    selectedFiles.forEach(f => formData.append(field, f));
   } else {
-    const fieldName = currentTool.acceptedFiles.includes('jpg') || currentTool.acceptedFiles.includes('png') ? 'images' : 'pdf';
-    formData.append(fieldName, selectedFiles[0]);
+    const field = currentTool.group === 'image' ? 'image' : 'pdf';
+    formData.append(field, selectedFiles[0]);
   }
 
   currentTool.options.forEach(opt => {
@@ -203,19 +198,15 @@ async function processFile() {
     if (el && el.value.trim() !== '') formData.append(opt.id, el.value.trim());
   });
 
-  showStatus('loading', 'Processing...', 'Please wait while your file is being processed.');
-
+  showStatus('loading', 'Processing…', 'Please wait while your file is being processed.');
   const processBtn = document.getElementById('process-btn');
   if (processBtn) processBtn.disabled = true;
 
   try {
     const response = await fetch(currentTool.apiEndpoint, { method: 'POST', body: formData });
-    const contentType = response.headers.get('content-type') || '';
+    const ct = (response.headers.get('content-type') || '').toLowerCase();
 
-    if (response.status === 501) {
-      showComingSoon(currentTool.name);
-      return;
-    }
+    if (response.status === 501) { showComingSoon(currentTool.name); return; }
 
     if (!response.ok) {
       const json = await response.json().catch(() => ({ error: 'Unknown error occurred.' }));
@@ -223,24 +214,32 @@ async function processFile() {
       return;
     }
 
-    if (contentType.includes('application/pdf')) {
+    // Downloadable binary responses
+    const downloadMimes = [
+      'application/pdf',
+      'application/vnd.',
+      'image/jpeg', 'image/png', 'image/webp',
+      'application/zip',
+    ];
+    if (downloadMimes.some(m => ct.includes(m))) {
       const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const filename = `${currentTool.id}-output.pdf`;
-
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 10000);
-
-      showStatus('success', 'File ready!', `Your processed PDF is downloading now.`, url, filename);
-    } else {
-      const json = await response.json().catch(() => ({}));
-      showStatus('success', 'Done!', json.message || 'Processing complete.');
+      const ext  = mimeToExt(ct);
+      const filename = `${currentTool.id}-output${ext}`;
+      triggerDownload(blob, filename);
+      showStatus('success', 'File ready!',
+        `Your ${ext.replace('.', '').toUpperCase()} file is downloading now.`,
+        URL.createObjectURL(blob), filename);
+      return;
     }
+
+    // JSON response
+    const json = await response.json().catch(() => ({}));
+
+    if (json.text)    { showTextResult(json.text, 'Extracted Text');    return; }
+    if (json.summary) { showTextResult(json.summary, 'Summary');        return; }
+    if (json.report)  { showReport(json.report);                        return; }
+
+    showStatus('success', 'Done!', json.message || 'Processing complete.');
   } catch (err) {
     showStatus('error', 'Connection error', 'Could not connect to the server. Please try again.');
   } finally {
@@ -248,15 +247,38 @@ async function processFile() {
   }
 }
 
+// ── HELPERS ────────────────────────────────────────────────────────────────
+
+function mimeToExt(ct) {
+  if (ct.includes('application/pdf')) return '.pdf';
+  if (ct.includes('wordprocessingml') || ct.includes('msword')) return '.docx';
+  if (ct.includes('spreadsheetml') || ct.includes('ms-excel')) return '.xlsx';
+  if (ct.includes('presentationml') || ct.includes('ms-powerpoint')) return '.pptx';
+  if (ct.includes('image/jpeg')) return '.jpg';
+  if (ct.includes('image/png'))  return '.png';
+  if (ct.includes('image/webp')) return '.webp';
+  if (ct.includes('application/zip')) return '.zip';
+  return '.bin';
+}
+
+function triggerDownload(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a   = document.createElement('a');
+  a.href     = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
+}
+
+// ── RESULT DISPLAY ─────────────────────────────────────────────────────────
+
 function showStatus(type, title, message, downloadUrl, filename) {
   const area = document.getElementById('result-area');
   if (!area) return;
 
-  const icons = {
-    loading: `<div class="spinner"></div>`,
-    success: `<i data-lucide="check-circle-2"></i>`,
-    error:   `<i data-lucide="alert-circle"></i>`,
-  };
+  const icons   = { loading: `<div class="spinner"></div>`, success: `<i data-lucide="check-circle-2"></i>`, error: `<i data-lucide="alert-circle"></i>` };
   const classes = { loading: 'status-loading', success: 'status-success', error: 'status-error' };
 
   const downloadBtn = (downloadUrl && filename)
@@ -271,16 +293,60 @@ function showStatus(type, title, message, downloadUrl, filename) {
         <div class="status-card-msg">${message}</div>
         ${downloadBtn}
       </div>
-    </div>
-  `;
+    </div>`;
   lucide.createIcons();
 }
 
-function showComingSoon(toolName) {
-  showComingSoonModal(toolName);
+function showTextResult(text, label = 'Result') {
+  const area = document.getElementById('result-area');
+  if (!area) return;
+
+  area.innerHTML = `
+    <div class="text-result-card">
+      <div class="text-result-header">
+        <span class="text-result-label"><i data-lucide="file-text"></i> ${label}</span>
+        <button class="btn btn-outline btn-sm" onclick="copyTextResult(this)">
+          <i data-lucide="copy"></i> Copy
+        </button>
+      </div>
+      <textarea class="text-result-area" readonly>${escapeHtml(text)}</textarea>
+    </div>`;
+  lucide.createIcons();
 }
 
-function showComingSoonModal(toolName) {
+function showReport(report) {
+  const area = document.getElementById('result-area');
+  if (!area) return;
+
+  const rows = Object.entries(report).map(([k, v]) => `
+    <div class="report-row">
+      <span class="report-key">${k}</span>
+      <span class="report-val">${v}</span>
+    </div>`).join('');
+
+  area.innerHTML = `
+    <div class="text-result-card">
+      <div class="text-result-header">
+        <span class="text-result-label"><i data-lucide="bar-chart-2"></i> Comparison Report</span>
+      </div>
+      <div class="report-table">${rows}</div>
+    </div>`;
+  lucide.createIcons();
+}
+
+function copyTextResult(btn) {
+  const ta = btn.closest('.text-result-card')?.querySelector('textarea');
+  if (!ta) return;
+  navigator.clipboard.writeText(ta.value).then(() => {
+    btn.innerHTML = '<i data-lucide="check"></i> Copied!';
+    lucide.createIcons();
+    setTimeout(() => { btn.innerHTML = '<i data-lucide="copy"></i> Copy'; lucide.createIcons(); }, 2000);
+  });
+}
+
+// ── MODAL ──────────────────────────────────────────────────────────────────
+
+function showComingSoon(toolName) {
   const modal = document.getElementById('coming-soon-modal');
   const label = document.getElementById('modal-tool-name');
   if (!modal) return;
@@ -295,6 +361,8 @@ function closeComingSoonModal() {
   document.body.style.overflow = '';
 }
 
+// ── UTILITIES ──────────────────────────────────────────────────────────────
+
 function formatBytes(bytes) {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -306,4 +374,12 @@ function hexToRgba(hex, alpha) {
   const g = parseInt(hex.slice(3,5), 16);
   const b = parseInt(hex.slice(5,7), 16);
   return `rgba(${r},${g},${b},${alpha})`;
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
