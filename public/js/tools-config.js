@@ -1,0 +1,246 @@
+const CATEGORIES = [
+  { name: 'Organize PDFs',       color: '#3b82f6', icon: 'layers' },
+  { name: 'Compress & Optimize', color: '#10b981', icon: 'zap' },
+  { name: 'Convert from PDF',    color: '#f59e0b', icon: 'arrow-right-circle' },
+  { name: 'Convert to PDF',      color: '#8b5cf6', icon: 'arrow-left-circle' },
+  { name: 'Edit & Annotate',     color: '#ec4899', icon: 'edit-3' },
+  { name: 'Security',            color: '#ef4444', icon: 'shield' },
+  { name: 'Advanced Tools',      color: '#6366f1', icon: 'cpu' },
+];
+
+const TOOLS = [
+  {
+    id: 'merge', name: 'Merge PDF', icon: 'layers',
+    description: 'Combine multiple PDF files into a single document',
+    category: 'Organize PDFs', apiEndpoint: '/api/merge',
+    acceptedFiles: '.pdf', multipleFiles: true, working: true, options: []
+  },
+  {
+    id: 'split', name: 'Split PDF', icon: 'scissors',
+    description: 'Extract specific pages or ranges from a PDF',
+    category: 'Organize PDFs', apiEndpoint: '/api/split',
+    acceptedFiles: '.pdf', multipleFiles: false, working: true,
+    options: [
+      { id: 'range', label: 'Page Range', type: 'text', placeholder: 'e.g. 1-3, 5, 7-9 (blank = all)' }
+    ]
+  },
+  {
+    id: 'rotate', name: 'Rotate PDF', icon: 'rotate-cw',
+    description: 'Rotate pages to the correct orientation',
+    category: 'Organize PDFs', apiEndpoint: '/api/rotate',
+    acceptedFiles: '.pdf', multipleFiles: false, working: true,
+    options: [
+      { id: 'degrees', label: 'Rotation Angle', type: 'select', options: [
+        { value: '90', label: '90° Clockwise' },
+        { value: '180', label: '180°' },
+        { value: '270', label: '270° (Counter-clockwise)' }
+      ]},
+      { id: 'pages', label: 'Pages (comma-separated or "all")', type: 'text', placeholder: 'all' }
+    ]
+  },
+  {
+    id: 'crop', name: 'Crop PDF', icon: 'crop',
+    description: 'Trim the margins of PDF pages',
+    category: 'Organize PDFs', apiEndpoint: '/api/crop',
+    acceptedFiles: '.pdf', multipleFiles: false, working: true,
+    options: [
+      { id: 'cropLeft',   label: 'Crop Left (%)',   type: 'number', placeholder: '0' },
+      { id: 'cropRight',  label: 'Crop Right (%)',  type: 'number', placeholder: '0' },
+      { id: 'cropTop',    label: 'Crop Top (%)',    type: 'number', placeholder: '0' },
+      { id: 'cropBottom', label: 'Crop Bottom (%)', type: 'number', placeholder: '0' }
+    ]
+  },
+  {
+    id: 'organize', name: 'Organize PDF', icon: 'move',
+    description: 'Reorder the pages of your PDF document',
+    category: 'Organize PDFs', apiEndpoint: '/api/organize',
+    acceptedFiles: '.pdf', multipleFiles: false, working: true,
+    options: [
+      { id: 'pageOrder', label: 'New Page Order (1-indexed, comma-separated)', type: 'text', placeholder: 'e.g. 3,1,2' }
+    ]
+  },
+  {
+    id: 'compress', name: 'Compress PDF', icon: 'archive',
+    description: 'Reduce PDF file size while preserving quality',
+    category: 'Compress & Optimize', apiEndpoint: '/api/compress',
+    acceptedFiles: '.pdf', multipleFiles: false, working: true, options: []
+  },
+  {
+    id: 'pdf-to-word', name: 'PDF to Word', icon: 'file-text',
+    description: 'Convert PDF to editable Word documents',
+    category: 'Convert from PDF', apiEndpoint: '/api/pdf-to-word',
+    acceptedFiles: '.pdf', multipleFiles: false, working: false, options: []
+  },
+  {
+    id: 'pdf-to-powerpoint', name: 'PDF to PowerPoint', icon: 'layout',
+    description: 'Transform PDFs into editable presentations',
+    category: 'Convert from PDF', apiEndpoint: '/api/pdf-to-powerpoint',
+    acceptedFiles: '.pdf', multipleFiles: false, working: false, options: []
+  },
+  {
+    id: 'pdf-to-excel', name: 'PDF to Excel', icon: 'table',
+    description: 'Extract tables from PDFs into spreadsheets',
+    category: 'Convert from PDF', apiEndpoint: '/api/pdf-to-excel',
+    acceptedFiles: '.pdf', multipleFiles: false, working: false, options: []
+  },
+  {
+    id: 'pdf-to-jpg', name: 'PDF to JPG', icon: 'image',
+    description: 'Convert PDF pages into high-quality images',
+    category: 'Convert from PDF', apiEndpoint: '/api/pdf-to-jpg',
+    acceptedFiles: '.pdf', multipleFiles: false, working: false, options: []
+  },
+  {
+    id: 'word-to-pdf', name: 'Word to PDF', icon: 'file-up',
+    description: 'Convert Word documents to PDF format',
+    category: 'Convert to PDF', apiEndpoint: '/api/word-to-pdf',
+    acceptedFiles: '.doc,.docx', multipleFiles: false, working: false, options: []
+  },
+  {
+    id: 'powerpoint-to-pdf', name: 'PowerPoint to PDF', icon: 'monitor',
+    description: 'Convert presentations to PDF format',
+    category: 'Convert to PDF', apiEndpoint: '/api/powerpoint-to-pdf',
+    acceptedFiles: '.ppt,.pptx', multipleFiles: false, working: false, options: []
+  },
+  {
+    id: 'excel-to-pdf', name: 'Excel to PDF', icon: 'grid',
+    description: 'Convert Excel spreadsheets to PDF',
+    category: 'Convert to PDF', apiEndpoint: '/api/excel-to-pdf',
+    acceptedFiles: '.xls,.xlsx', multipleFiles: false, working: false, options: []
+  },
+  {
+    id: 'jpg-to-pdf', name: 'JPG to PDF', icon: 'file-image',
+    description: 'Convert images (JPG, PNG) into a PDF document',
+    category: 'Convert to PDF', apiEndpoint: '/api/jpg-to-pdf',
+    acceptedFiles: '.jpg,.jpeg,.png', multipleFiles: true, working: true, options: []
+  },
+  {
+    id: 'html-to-pdf', name: 'HTML to PDF', icon: 'globe',
+    description: 'Convert HTML files into PDF documents',
+    category: 'Convert to PDF', apiEndpoint: '/api/html-to-pdf',
+    acceptedFiles: '.html,.htm', multipleFiles: false, working: false, options: []
+  },
+  {
+    id: 'edit', name: 'Edit PDF', icon: 'edit-3',
+    description: 'Add text annotations and overlays to your PDF',
+    category: 'Edit & Annotate', apiEndpoint: '/api/edit',
+    acceptedFiles: '.pdf', multipleFiles: false, working: true,
+    options: [
+      { id: 'text',     label: 'Text to Add',        type: 'text',   placeholder: 'Your text here...' },
+      { id: 'x',        label: 'X Position (%)',      type: 'number', placeholder: '50' },
+      { id: 'y',        label: 'Y Position (%)',      type: 'number', placeholder: '50' },
+      { id: 'fontSize', label: 'Font Size',           type: 'number', placeholder: '14' },
+      { id: 'page',     label: 'Page (number or "all")', type: 'text', placeholder: '1' }
+    ]
+  },
+  {
+    id: 'watermark', name: 'Watermark PDF', icon: 'droplets',
+    description: 'Add a text watermark to protect your document',
+    category: 'Edit & Annotate', apiEndpoint: '/api/watermark',
+    acceptedFiles: '.pdf', multipleFiles: false, working: true,
+    options: [
+      { id: 'text',     label: 'Watermark Text', type: 'text',   placeholder: 'CONFIDENTIAL' },
+      { id: 'opacity',  label: 'Opacity (0.1–0.9)', type: 'number', placeholder: '0.3' },
+      { id: 'position', label: 'Position', type: 'select', options: [
+        { value: 'center',       label: 'Center (Diagonal)' },
+        { value: 'top-left',     label: 'Top Left' },
+        { value: 'top-right',    label: 'Top Right' },
+        { value: 'bottom-left',  label: 'Bottom Left' },
+        { value: 'bottom-right', label: 'Bottom Right' }
+      ]}
+    ]
+  },
+  {
+    id: 'sign', name: 'Sign PDF', icon: 'pen-tool',
+    description: 'Add a digital text signature to your PDF',
+    category: 'Edit & Annotate', apiEndpoint: '/api/sign',
+    acceptedFiles: '.pdf', multipleFiles: false, working: true,
+    options: [
+      { id: 'signatureText', label: 'Your Name / Signature', type: 'text', placeholder: 'John Doe' },
+      { id: 'page', label: 'Page to Sign (blank = last page)', type: 'number', placeholder: '' }
+    ]
+  },
+  {
+    id: 'page-numbers', name: 'Add Page Numbers', icon: 'hash',
+    description: 'Insert page numbers into your document',
+    category: 'Edit & Annotate', apiEndpoint: '/api/page-numbers',
+    acceptedFiles: '.pdf', multipleFiles: false, working: true,
+    options: [
+      { id: 'position', label: 'Position', type: 'select', options: [
+        { value: 'bottom-center', label: 'Bottom Center' },
+        { value: 'bottom-right',  label: 'Bottom Right' },
+        { value: 'bottom-left',   label: 'Bottom Left' },
+        { value: 'top-center',    label: 'Top Center' },
+        { value: 'top-right',     label: 'Top Right' },
+        { value: 'top-left',      label: 'Top Left' }
+      ]},
+      { id: 'startFrom', label: 'Start Numbering From', type: 'number', placeholder: '1' }
+    ]
+  },
+  {
+    id: 'redact', name: 'Redact PDF', icon: 'eye-off',
+    description: 'Black out sensitive areas of your PDF',
+    category: 'Edit & Annotate', apiEndpoint: '/api/redact',
+    acceptedFiles: '.pdf', multipleFiles: false, working: true,
+    options: [
+      { id: 'x',      label: 'X Position (%)',  type: 'number', placeholder: '10' },
+      { id: 'y',      label: 'Y Position (%)',  type: 'number', placeholder: '40' },
+      { id: 'width',  label: 'Width (%)',        type: 'number', placeholder: '30' },
+      { id: 'height', label: 'Height (%)',       type: 'number', placeholder: '10' },
+      { id: 'pages',  label: 'Pages (number or "all")', type: 'text', placeholder: '1' }
+    ]
+  },
+  {
+    id: 'protect', name: 'Protect PDF', icon: 'lock',
+    description: 'Encrypt your PDF with a password',
+    category: 'Security', apiEndpoint: '/api/protect',
+    acceptedFiles: '.pdf', multipleFiles: false, working: false, options: []
+  },
+  {
+    id: 'unlock', name: 'Unlock PDF', icon: 'unlock',
+    description: 'Remove password protection from a PDF',
+    category: 'Security', apiEndpoint: '/api/unlock',
+    acceptedFiles: '.pdf', multipleFiles: false, working: false, options: []
+  },
+  {
+    id: 'repair', name: 'Repair PDF', icon: 'wrench',
+    description: 'Fix corrupted or damaged PDF files',
+    category: 'Advanced Tools', apiEndpoint: '/api/repair',
+    acceptedFiles: '.pdf', multipleFiles: false, working: false, options: []
+  },
+  {
+    id: 'scan-to-pdf', name: 'Scan to PDF', icon: 'scan-line',
+    description: 'Convert scanned images into a PDF document',
+    category: 'Advanced Tools', apiEndpoint: '/api/scan-to-pdf',
+    acceptedFiles: '.jpg,.jpeg,.png', multipleFiles: true, working: true, options: []
+  },
+  {
+    id: 'ocr', name: 'OCR PDF', icon: 'type',
+    description: 'Extract text from scanned PDFs',
+    category: 'Advanced Tools', apiEndpoint: '/api/ocr',
+    acceptedFiles: '.pdf', multipleFiles: false, working: false, options: []
+  },
+  {
+    id: 'compare', name: 'Compare PDF', icon: 'columns',
+    description: 'Find differences between two PDF files',
+    category: 'Advanced Tools', apiEndpoint: '/api/compare',
+    acceptedFiles: '.pdf', multipleFiles: true, working: false, options: []
+  },
+  {
+    id: 'ai-summarize', name: 'AI Summarizer', icon: 'sparkles',
+    description: 'Summarize PDF content with AI',
+    category: 'Advanced Tools', apiEndpoint: '/api/ai-summarize',
+    acceptedFiles: '.pdf', multipleFiles: false, working: false, options: []
+  },
+  {
+    id: 'translate', name: 'Translate PDF', icon: 'languages',
+    description: 'Translate PDF documents into any language',
+    category: 'Advanced Tools', apiEndpoint: '/api/translate',
+    acceptedFiles: '.pdf', multipleFiles: false, working: false, options: []
+  },
+  {
+    id: 'workflow', name: 'Workflow Builder', icon: 'git-branch',
+    description: 'Automate multi-step PDF processing pipelines',
+    category: 'Advanced Tools', apiEndpoint: '/api/workflow',
+    acceptedFiles: '.pdf', multipleFiles: false, working: false, options: []
+  },
+];
