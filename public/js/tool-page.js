@@ -277,18 +277,22 @@ function showStatus(type, title, message, downloadUrl, filename) {
 }
 
 function showComingSoon(toolName) {
-  const area = document.getElementById('result-area');
-  if (!area) return;
-  area.innerHTML = `
-    <div class="coming-soon-overlay">
-      <div class="coming-soon-icon">🚧</div>
-      <div class="coming-soon-title">${toolName} is Coming Soon</div>
-      <div class="coming-soon-msg">
-        We're actively building this feature. Check back soon — it will be available in an upcoming release.<br>
-        In the meantime, explore our other <strong>live tools</strong> below.
-      </div>
-    </div>
-  `;
+  showComingSoonModal(toolName);
+}
+
+function showComingSoonModal(toolName) {
+  const modal = document.getElementById('coming-soon-modal');
+  const label = document.getElementById('modal-tool-name');
+  if (!modal) return;
+  if (label) label.textContent = toolName || 'This feature';
+  modal.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeComingSoonModal() {
+  const modal = document.getElementById('coming-soon-modal');
+  if (modal) modal.classList.add('hidden');
+  document.body.style.overflow = '';
 }
 
 function formatBytes(bytes) {

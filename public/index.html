@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PDF Tools Pro — 29 Professional PDF Tools</title>
+  <title>PDF Tools Pro — 33 Professional PDF & Image Tools</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
@@ -27,21 +27,21 @@
         <div class="topbar-right">
           <div class="topbar-search">
             <i data-lucide="search"></i>
-            <input type="text" id="search-input" placeholder="Search tools...">
+            <input type="text" id="search-input" placeholder="Search 33 tools...">
           </div>
         </div>
       </header>
 
       <main class="dashboard">
         <div class="hero">
-          <div class="hero-title">Every PDF Tool You'll Ever Need</div>
-          <div class="hero-sub">29 professional tools to edit, convert, compress, and manage your PDF files — fast and free.</div>
+          <div class="hero-title">Every PDF & Image Tool You'll Ever Need</div>
+          <div class="hero-sub">33 professional tools to edit, convert, compress, and manage your files — fast and free.</div>
           <div class="hero-chips">
             <span class="hero-chip">Merge &amp; Split</span>
             <span class="hero-chip">Compress</span>
             <span class="hero-chip">Convert</span>
             <span class="hero-chip">Edit &amp; Sign</span>
-            <span class="hero-chip">Protect</span>
+            <span class="hero-chip">Image Tools</span>
             <span class="hero-chip">AI Tools</span>
           </div>
         </div>
@@ -51,9 +51,41 @@
     </div>
   </div>
 
+  <!-- Coming Soon Modal -->
+  <div id="coming-soon-modal" class="modal-backdrop hidden" onclick="handleModalBackdropClick(event)">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeComingSoonModal()" aria-label="Close">
+        <i data-lucide="x"></i>
+      </button>
+      <span class="modal-emoji">🚧</span>
+      <h3 class="modal-title">Coming Soon</h3>
+      <span class="modal-tool-label" id="modal-tool-name">This feature</span>
+      <p class="modal-message">
+        We're actively building this tool and it will be available in an upcoming release.<br>
+        In the meantime, explore our other live tools!
+      </p>
+      <div class="modal-actions">
+        <button class="btn btn-primary" onclick="closeComingSoonModal()">
+          <i data-lucide="check"></i> Got It
+        </button>
+        <a href="/" class="btn btn-outline">
+          <i data-lucide="layout-grid"></i> Browse Live Tools
+        </a>
+      </div>
+    </div>
+  </div>
+
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="js/tools-config.js"></script>
   <script src="js/sidebar.js"></script>
   <script src="js/dashboard.js"></script>
+  <script>
+    function handleModalBackdropClick(e) {
+      if (e.target === e.currentTarget) closeComingSoonModal();
+    }
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeComingSoonModal();
+    });
+  </script>
 </body>
 </html>

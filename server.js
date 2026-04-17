@@ -8,6 +8,7 @@ import editRouter from './routes/edit.js';
 import convertRouter from './routes/convert.js';
 import securityRouter from './routes/security.js';
 import advancedRouter from './routes/advanced.js';
+import imageRouter from './routes/image.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,6 +29,7 @@ app.use('/api', editRouter);
 app.use('/api', convertRouter);
 app.use('/api', securityRouter);
 app.use('/api', advancedRouter);
+app.use('/api', imageRouter);
 
 app.get('/{*path}', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));

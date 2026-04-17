@@ -34,9 +34,41 @@
     </div>
   </div>
 
+  <!-- Coming Soon Modal (accessible from tool page too) -->
+  <div id="coming-soon-modal" class="modal-backdrop hidden" onclick="handleModalBackdropClick(event)">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeComingSoonModal()" aria-label="Close">
+        <i data-lucide="x"></i>
+      </button>
+      <span class="modal-emoji">🚧</span>
+      <h3 class="modal-title">Coming Soon</h3>
+      <span class="modal-tool-label" id="modal-tool-name">This feature</span>
+      <p class="modal-message">
+        We're actively building this tool and it will be available in an upcoming release.<br>
+        In the meantime, explore our other live tools!
+      </p>
+      <div class="modal-actions">
+        <button class="btn btn-primary" onclick="closeComingSoonModal()">
+          <i data-lucide="check"></i> Got It
+        </button>
+        <a href="/" class="btn btn-outline">
+          <i data-lucide="layout-grid"></i> Browse Live Tools
+        </a>
+      </div>
+    </div>
+  </div>
+
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="js/tools-config.js"></script>
   <script src="js/sidebar.js"></script>
   <script src="js/tool-page.js"></script>
+  <script>
+    function handleModalBackdropClick(e) {
+      if (e.target === e.currentTarget) closeComingSoonModal();
+    }
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeComingSoonModal();
+    });
+  </script>
 </body>
 </html>
