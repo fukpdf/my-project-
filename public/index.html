@@ -3,10 +3,47 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PDF Tools Pro — 33 Professional PDF & Image Tools</title>
+  <title>fukpdf.com — Free Online PDF & Image Tools: Merge, Split, Compress, Convert</title>
+  <meta name="description" content="fukpdf.com offers 33 free online PDF tools. Merge PDF, split PDF, compress PDF, convert PDF to Word, JPG to PDF, and more — no signup, no software needed.">
+  <meta name="keywords" content="merge pdf online free, compress pdf without losing quality, pdf to word converter, split pdf, jpg to pdf, pdf tools online, free pdf editor">
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="fukpdf.com">
+  <link rel="canonical" href="https://fukpdf.com/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://fukpdf.com/">
+  <meta property="og:title" content="fukpdf.com — Free Online PDF & Image Tools">
+  <meta property="og:description" content="33 professional PDF and image tools — merge, split, compress, convert, edit and more. Free, fast, secure. No signup required.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="fukpdf.com — Free Online PDF Tools">
+  <meta name="twitter:description" content="33 free PDF tools online. Merge, split, compress, convert PDFs and more.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "fukpdf.com",
+    "url": "https://fukpdf.com",
+    "description": "Free online PDF and image tools — merge, split, compress, convert and more.",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://fukpdf.com/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "fukpdf.com PDF Tools",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Web",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "description": "33 free online PDF and image tools including merge, split, compress, convert."
+  }
+  </script>
 </head>
 <body>
   <div class="app-layout">
@@ -22,20 +59,28 @@
             <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
           </svg>
         </button>
-        <span class="topbar-title">PDF Tools Pro</span>
+        <span class="topbar-title">fukpdf.com</span>
         <span class="topbar-sub">All Tools</span>
         <div class="topbar-right">
           <div class="topbar-search">
             <i data-lucide="search"></i>
-            <input type="text" id="search-input" placeholder="Search 33 tools...">
+            <input type="text" id="search-input" placeholder="Search 33 tools..." aria-label="Search tools">
           </div>
         </div>
       </header>
 
+      <!-- AdSense Leaderboard Placeholder -->
+      <div class="ad-slot ad-leaderboard" aria-label="Advertisement">
+        <span class="ad-label">Advertisement</span>
+        <!-- Replace with AdSense code:
+        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXX" data-ad-slot="XXXXXXXX" data-ad-format="auto"></ins>
+        -->
+      </div>
+
       <main class="dashboard">
         <div class="hero">
           <div class="hero-title">Every PDF & Image Tool You'll Ever Need</div>
-          <div class="hero-sub">33 professional tools to edit, convert, compress, and manage your files — fast and free.</div>
+          <div class="hero-sub">33 free professional tools at fukpdf.com — merge, compress, convert, edit — no signup, no software.</div>
           <div class="hero-chips">
             <span class="hero-chip">Merge &amp; Split</span>
             <span class="hero-chip">Compress</span>
@@ -47,7 +92,31 @@
         </div>
 
         <div id="dashboard-content"></div>
+
+        <!-- AdSense Rectangle Placeholder (in-feed) -->
+        <div class="ad-slot ad-rectangle" aria-label="Advertisement">
+          <span class="ad-label">Advertisement</span>
+          <!-- Replace with AdSense code -->
+        </div>
       </main>
+
+      <footer class="site-footer">
+        <div class="footer-inner">
+          <div class="footer-brand">
+            <span class="footer-logo">fukpdf.com</span>
+            <span class="footer-tagline">Free PDF &amp; Image Tools Online</span>
+          </div>
+          <nav class="footer-links" aria-label="Footer navigation">
+            <a href="/blog.html">Blog</a>
+            <a href="/privacy.html">Privacy Policy</a>
+            <a href="/terms.html">Terms &amp; Conditions</a>
+            <a href="/disclaimer.html">Disclaimer</a>
+          </nav>
+          <div class="footer-legal">
+            &copy; 2024 fukpdf.com — All rights reserved. Files are deleted automatically after processing.
+          </div>
+        </div>
+      </footer>
     </div>
   </div>
 
@@ -75,6 +144,20 @@
     </div>
   </div>
 
+  <!-- Cookie Consent Banner -->
+  <div id="cookie-banner" class="cookie-banner" role="dialog" aria-label="Cookie consent">
+    <div class="cookie-inner">
+      <div class="cookie-text">
+        <strong>We use cookies</strong> to improve your experience and for analytics. By using fukpdf.com you agree to our
+        <a href="/privacy.html">Privacy Policy</a>. Files you upload are processed securely and deleted automatically within 8 seconds.
+      </div>
+      <div class="cookie-actions">
+        <button class="btn btn-primary btn-sm" onclick="acceptCookies()">Accept</button>
+        <a href="/privacy.html" class="btn btn-outline btn-sm">Learn More</a>
+      </div>
+    </div>
+  </div>
+
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="js/tools-config.js"></script>
   <script src="js/sidebar.js"></script>
@@ -86,6 +169,28 @@
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') closeComingSoonModal();
     });
+
+    const menuToggle = document.getElementById('menu-toggle');
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    if (menuToggle) {
+      menuToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('hidden');
+      });
+      overlay.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        overlay.classList.add('hidden');
+      });
+    }
+
+    function acceptCookies() {
+      localStorage.setItem('fukpdf_cookies', '1');
+      document.getElementById('cookie-banner').classList.add('hidden');
+    }
+    if (localStorage.getItem('fukpdf_cookies')) {
+      document.getElementById('cookie-banner').classList.add('hidden');
+    }
   </script>
 </body>
 </html>

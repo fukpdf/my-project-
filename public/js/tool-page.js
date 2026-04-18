@@ -18,7 +18,13 @@ function renderToolPage(tool) {
   const catMeta = CATEGORIES.find(c => c.name === tool.category);
   const color = catMeta ? catMeta.color : '#6366f1';
 
-  document.title = `${tool.name} — PDF Tools Pro`;
+  document.title = `${tool.name} Online Free — fukpdf.com`;
+  let metaDesc = document.querySelector('meta[name="description"]');
+  if (!metaDesc) { metaDesc = document.createElement('meta'); metaDesc.name = 'description'; document.head.appendChild(metaDesc); }
+  metaDesc.content = `Free online ${tool.name} tool. ${tool.description}. No signup required — fast, secure, and free on fukpdf.com.`;
+  let metaKw = document.querySelector('meta[name="keywords"]');
+  if (!metaKw) { metaKw = document.createElement('meta'); metaKw.name = 'keywords'; document.head.appendChild(metaKw); }
+  metaKw.content = `${tool.name.toLowerCase()}, ${tool.name.toLowerCase()} online, ${tool.name.toLowerCase()} free, fukpdf, pdf tools online`;
   const topbarTitle = document.getElementById('topbar-title');
   if (topbarTitle) topbarTitle.textContent = tool.name;
 
@@ -98,6 +104,12 @@ function renderToolPage(tool) {
       </div>
 
       <div id="result-area"></div>
+
+      <div class="ad-slot ad-rectangle" aria-label="Advertisement" style="margin-top:24px;">
+        <span class="ad-label">Advertisement</span>
+      </div>
+
+      ${renderSeoContent(tool)}
     </div>
   `;
 
@@ -224,7 +236,7 @@ async function processFile() {
     if (downloadMimes.some(m => ct.includes(m))) {
       const blob = await response.blob();
       const ext  = mimeToExt(ct);
-      const filename = `${currentTool.id}-output${ext}`;
+      const filename = `fukpdf-${currentTool.id}${ext}`;
       triggerDownload(blob, filename);
       showStatus('success', 'File ready!',
         `Your ${ext.replace('.', '').toUpperCase()} file is downloading now.`,
@@ -374,6 +386,58 @@ function hexToRgba(hex, alpha) {
   const g = parseInt(hex.slice(3,5), 16);
   const b = parseInt(hex.slice(5,7), 16);
   return `rgba(${r},${g},${b},${alpha})`;
+}
+
+function renderSeoContent(tool) {
+  const catDesc = {
+    'Organize PDFs':       'organize, rearrange, and manage PDF documents',
+    'Compress & Optimize': 'compress and reduce PDF file size without losing quality',
+    'Convert from PDF':    'convert PDF files to other popular formats',
+    'Convert to PDF':      'convert documents and images into PDF format',
+    'Edit & Annotate':     'edit, annotate, and modify your PDF files',
+    'Security':            'protect and secure your PDF documents',
+    'Advanced Tools':      'perform advanced AI-powered PDF operations',
+    'Image Tools':         'edit, transform, and enhance images',
+  };
+  const kw = catDesc[tool.category] || 'work with PDF and document files';
+  const isImage = tool.group === 'image';
+  const fileType = isImage ? 'image' : 'PDF';
+
+  return `
+    <div class="seo-content">
+      <h2>${tool.name} Online — Free, Fast &amp; Secure</h2>
+      <p>
+        <strong>fukpdf.com's ${tool.name}</strong> lets you ${tool.description.charAt(0).toLowerCase() + tool.description.slice(1)} — entirely for free, directly in your browser.
+        There is no software to download, no account to create, and no hidden fees. Just upload your ${fileType} file, configure the settings if needed, and click Process File.
+        Your result will be ready within seconds and will download automatically.
+      </p>
+      <p>
+        We designed this tool to be as easy as possible: drag and drop your file onto the upload area, or click to browse.
+        Files up to 10 MB are supported. Once processing is complete, the file is deleted from our servers automatically — usually within 8 seconds.
+        We never store, read, share, or sell your files or their contents.
+      </p>
+      <h3>How to Use ${tool.name} on fukpdf.com</h3>
+      <ol class="seo-steps">
+        <li><strong>Upload your file</strong> — drag &amp; drop or click the upload area to select your ${fileType}.</li>
+        <li><strong>Set options</strong> — configure any tool-specific settings shown on this page.</li>
+        <li><strong>Process</strong> — click the "Process File" button and wait a few seconds.</li>
+        <li><strong>Download</strong> — your result file (named <code>fukpdf-${tool.id}.${isImage ? 'png' : 'pdf'}</code>) downloads automatically.</li>
+      </ol>
+      <h3>Why Choose fukpdf.com?</h3>
+      <p>
+        fukpdf.com was built for people who need to ${kw} without installing software or paying for a subscription.
+        With ${TOOLS.length} tools covering everything from merging PDFs and compressing files to AI-powered summarization and background removal,
+        it's the only PDF toolkit you'll ever need. All tools are browser-based, work on any device (Windows, Mac, Linux, iOS, Android),
+        and are completely free to use — no limits on the number of files you process.
+      </p>
+      <p>
+        Popular searches that bring users to this tool: <em>${tool.name.toLowerCase()} online free</em>,
+        <em>${tool.name.toLowerCase()} without software</em>, <em>free ${tool.name.toLowerCase()} tool</em>,
+        and <em>best ${tool.name.toLowerCase()} 2024</em>.
+        Powered by <strong>fukpdf.com</strong>.
+      </p>
+    </div>
+  `;
 }
 
 function escapeHtml(str) {

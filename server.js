@@ -2,6 +2,7 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import rateLimit from 'express-rate-limit';
 
 import organizeRouter from './routes/organize.js';
 import editRouter from './routes/edit.js';
@@ -21,9 +22,26 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-app.use(express.json());
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('X-Powered-By', 'fukpdf.com');
+  next();
+});
+
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 80,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests from this IP. Please wait 15 minutes and try again.' }
+});
+
+app.use(express.json({ limit: '1mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/api', apiLimiter);
 app.use('/api', organizeRouter);
 app.use('/api', editRouter);
 app.use('/api', convertRouter);
@@ -31,10 +49,21 @@ app.use('/api', securityRouter);
 app.use('/api', advancedRouter);
 app.use('/api', imageRouter);
 
+app.use((err, req, res, next) => {
+  if (err.code === 'LIMIT_FILE_SIZE') {
+    return res.status(413).json({ error: 'File too large. Maximum allowed size is 10 MB.' });
+  }
+  if (err.type === 'entity.too.large') {
+    return res.status(413).json({ error: 'Request too large.' });
+  }
+  console.error('Server error:', err.message);
+  res.status(500).json({ error: 'Internal server error.' });
+});
+
 app.get('/{*path}', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(PORT, () => {
-  console.log(`PDF Tools Pro running on port ${PORT}`);
+  console.log(`fukpdf.com running on port ${PORT}`);
 });

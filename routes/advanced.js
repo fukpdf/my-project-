@@ -7,7 +7,7 @@ import { cleanupFiles, sendPdf } from '../utils/cleanup.js';
 import { extractPdfText, textToPdf, extractiveSummarize, formatBytes } from '../utils/pdfText.js';
 
 const router = express.Router();
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ dest: 'uploads/', limits: { fileSize: 10 * 1024 * 1024 } });
 
 // ── REPAIR ────────────────────────────────────────────────────────────────
 
@@ -27,7 +27,7 @@ router.post('/repair', upload.single('pdf'), async (req, res) => {
     const outBytes = await pdfDoc.save({ useObjectStreams: false });
 
     cleanupFiles(req.file);
-    sendPdf(res, outBytes, 'repaired.pdf');
+    sendPdf(res, outBytes, 'fukpdf-repair.pdf');
   } catch (err) {
     cleanupFiles(req.file);
     res.status(500).json({ error: err.message });
@@ -184,7 +184,7 @@ router.post('/translate', upload.single('pdf'), async (req, res) => {
     const outBytes = await textToPdf(translatedText, PDFDocument, StandardFonts, rgb);
 
     cleanupFiles(req.file);
-    sendPdf(res, outBytes, `translated-${targetLang}.pdf`);
+    sendPdf(res, outBytes, `fukpdf-translated-${targetLang}.pdf`);
   } catch (err) {
     cleanupFiles(req.file);
     res.status(500).json({ error: err.message });
@@ -277,7 +277,7 @@ router.post('/workflow', upload.single('pdf'), async (req, res) => {
     }
 
     cleanupFiles(req.file);
-    sendPdf(res, bytes, 'workflow-output.pdf');
+    sendPdf(res, bytes, 'fukpdf-workflow.pdf');
   } catch (err) {
     cleanupFiles(req.file);
     res.status(500).json({ error: err.message });

@@ -38,7 +38,7 @@ export async function backgroundRemove(req, res) {
     }).png().toBuffer();
 
     cleanupFiles(req.file);
-    sendImage(res, result, 'image/png', 'background-removed.png');
+    sendImage(res, result, 'image/png', 'fukpdf-bg-removed.png');
   } catch (err) {
     cleanupFiles(req.file);
     res.status(500).json({ error: err.message });
@@ -78,7 +78,7 @@ export async function cropImage(req, res) {
     const mime = ext === 'jpg' ? 'image/jpeg' : 'image/png';
 
     cleanupFiles(req.file);
-    sendImage(res, result, mime, `cropped.${ext}`);
+    sendImage(res, result, mime, `fukpdf-crop.${ext}`);
   } catch (err) {
     cleanupFiles(req.file);
     res.status(500).json({ error: err.message });
@@ -118,7 +118,7 @@ export async function resizeImage(req, res) {
     const mime = ext === 'jpg' ? 'image/jpeg' : 'image/png';
 
     cleanupFiles(req.file);
-    sendImage(res, result, mime, `resized.${ext}`);
+    sendImage(res, result, mime, `fukpdf-resize.${ext}`);
   } catch (err) {
     cleanupFiles(req.file);
     res.status(500).json({ error: err.message });
@@ -172,7 +172,7 @@ export async function applyFilters(req, res) {
     const mime   = ext === 'jpg' ? 'image/jpeg' : 'image/png';
 
     cleanupFiles(req.file);
-    sendImage(res, result, mime, `filtered-${filter}.${ext}`);
+    sendImage(res, result, mime, `fukpdf-filter-${filter}.${ext}`);
   } catch (err) {
     cleanupFiles(req.file);
     res.status(500).json({ error: err.message });

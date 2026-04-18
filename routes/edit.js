@@ -5,7 +5,7 @@ import fs from 'fs';
 import { cleanupFiles, sendPdf } from '../utils/cleanup.js';
 
 const router = express.Router();
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ dest: 'uploads/', limits: { fileSize: 10 * 1024 * 1024 } });
 
 router.post('/compress', upload.single('pdf'), async (req, res) => {
   try {
@@ -14,7 +14,7 @@ router.post('/compress', upload.single('pdf'), async (req, res) => {
     const doc = await PDFDocument.load(bytes, { updateMetadata: false });
     const outBytes = await doc.save({ useObjectStreams: true, addDefaultPage: false });
     cleanupFiles(req.file);
-    sendPdf(res, outBytes, 'compressed.pdf');
+    sendPdf(res, outBytes, 'fukpdf-compress.pdf');
   } catch (err) {
     cleanupFiles(req.file);
     res.status(500).json({ error: err.message });
@@ -47,7 +47,7 @@ router.post('/edit', upload.single('pdf'), async (req, res) => {
 
     const outBytes = await doc.save();
     cleanupFiles(req.file);
-    sendPdf(res, outBytes, 'edited.pdf');
+    sendPdf(res, outBytes, 'fukpdf-edit.pdf');
   } catch (err) {
     cleanupFiles(req.file);
     res.status(500).json({ error: err.message });
@@ -87,7 +87,7 @@ router.post('/watermark', upload.single('pdf'), async (req, res) => {
 
     const outBytes = await doc.save();
     cleanupFiles(req.file);
-    sendPdf(res, outBytes, 'watermarked.pdf');
+    sendPdf(res, outBytes, 'fukpdf-watermark.pdf');
   } catch (err) {
     cleanupFiles(req.file);
     res.status(500).json({ error: err.message });
@@ -124,7 +124,7 @@ router.post('/sign', upload.single('pdf'), async (req, res) => {
 
     const outBytes = await doc.save();
     cleanupFiles(req.file);
-    sendPdf(res, outBytes, 'signed.pdf');
+    sendPdf(res, outBytes, 'fukpdf-sign.pdf');
   } catch (err) {
     cleanupFiles(req.file);
     res.status(500).json({ error: err.message });
@@ -161,7 +161,7 @@ router.post('/page-numbers', upload.single('pdf'), async (req, res) => {
 
     const outBytes = await doc.save();
     cleanupFiles(req.file);
-    sendPdf(res, outBytes, 'numbered.pdf');
+    sendPdf(res, outBytes, 'fukpdf-page-numbers.pdf');
   } catch (err) {
     cleanupFiles(req.file);
     res.status(500).json({ error: err.message });
@@ -193,7 +193,7 @@ router.post('/redact', upload.single('pdf'), async (req, res) => {
 
     const outBytes = await doc.save();
     cleanupFiles(req.file);
-    sendPdf(res, outBytes, 'redacted.pdf');
+    sendPdf(res, outBytes, 'fukpdf-redact.pdf');
   } catch (err) {
     cleanupFiles(req.file);
     res.status(500).json({ error: err.message });

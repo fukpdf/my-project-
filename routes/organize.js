@@ -5,7 +5,7 @@ import fs from 'fs';
 import { cleanupFiles, sendPdf } from '../utils/cleanup.js';
 
 const router = express.Router();
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ dest: 'uploads/', limits: { fileSize: 10 * 1024 * 1024 } });
 
 router.post('/merge', upload.array('pdfs'), async (req, res) => {
   try {
@@ -21,7 +21,7 @@ router.post('/merge', upload.array('pdfs'), async (req, res) => {
     }
     const outBytes = await merged.save();
     cleanupFiles(req.files);
-    sendPdf(res, outBytes, 'merged.pdf');
+    sendPdf(res, outBytes, 'fukpdf-merge.pdf');
   } catch (err) {
     cleanupFiles(req.files);
     res.status(500).json({ error: err.message });
@@ -48,7 +48,7 @@ router.post('/split', upload.single('pdf'), async (req, res) => {
 
     const outBytes = await newDoc.save();
     cleanupFiles(req.file);
-    sendPdf(res, outBytes, 'split.pdf');
+    sendPdf(res, outBytes, 'fukpdf-split.pdf');
   } catch (err) {
     cleanupFiles(req.file);
     res.status(500).json({ error: err.message });
@@ -79,7 +79,7 @@ router.post('/rotate', upload.single('pdf'), async (req, res) => {
 
     const outBytes = await doc.save();
     cleanupFiles(req.file);
-    sendPdf(res, outBytes, 'rotated.pdf');
+    sendPdf(res, outBytes, 'fukpdf-rotate.pdf');
   } catch (err) {
     cleanupFiles(req.file);
     res.status(500).json({ error: err.message });
@@ -109,7 +109,7 @@ router.post('/organize', upload.single('pdf'), async (req, res) => {
 
     const outBytes = await newDoc.save();
     cleanupFiles(req.file);
-    sendPdf(res, outBytes, 'organized.pdf');
+    sendPdf(res, outBytes, 'fukpdf-organize.pdf');
   } catch (err) {
     cleanupFiles(req.file);
     res.status(500).json({ error: err.message });
@@ -139,7 +139,7 @@ router.post('/crop', upload.single('pdf'), async (req, res) => {
 
     const outBytes = await doc.save();
     cleanupFiles(req.file);
-    sendPdf(res, outBytes, 'cropped.pdf');
+    sendPdf(res, outBytes, 'fukpdf-crop.pdf');
   } catch (err) {
     cleanupFiles(req.file);
     res.status(500).json({ error: err.message });

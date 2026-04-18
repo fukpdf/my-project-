@@ -8,7 +8,7 @@ import { cleanupFiles, sendPdf } from '../utils/cleanup.js';
 
 const execAsync = promisify(exec);
 const router = express.Router();
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ dest: 'uploads/', limits: { fileSize: 10 * 1024 * 1024 } });
 
 router.post('/protect', upload.single('pdf'), async (req, res) => {
   try {
@@ -28,7 +28,7 @@ router.post('/protect', upload.single('pdf'), async (req, res) => {
       );
       const outBytes = fs.readFileSync(outputPath);
       cleanupFiles(req.file, { path: outputPath });
-      return sendPdf(res, outBytes, 'protected.pdf');
+      return sendPdf(res, outBytes, 'fukpdf-protected.pdf');
     } catch {
       const pdfDoc = await PDFDocument.load(fs.readFileSync(inputPath), { ignoreEncryption: true });
       const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
@@ -51,7 +51,7 @@ router.post('/protect', upload.single('pdf'), async (req, res) => {
       cleanupFiles(req.file);
       res.setHeader('X-Protection-Note',
         'Metadata-based protection applied. For strong encryption install qpdf on the server.');
-      return sendPdf(res, outBytes, 'protected.pdf');
+      return sendPdf(res, outBytes, 'fukpdf-protected.pdf');
     }
   } catch (err) {
     cleanupFiles(req.file);
@@ -73,7 +73,7 @@ router.post('/unlock', upload.single('pdf'), async (req, res) => {
 
     const outBytes = await pdfDoc.save();
     cleanupFiles(req.file);
-    sendPdf(res, outBytes, 'unlocked.pdf');
+    sendPdf(res, outBytes, 'fukpdf-unlocked.pdf');
   } catch (err) {
     cleanupFiles(req.file);
     res.status(500).json({

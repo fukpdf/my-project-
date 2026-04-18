@@ -17,7 +17,7 @@ import { extractPdfText, wrapText, textToPdf } from '../utils/pdfText.js';
 const require = createRequire(import.meta.url);
 const execAsync = promisify(exec);
 const router = express.Router();
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ dest: 'uploads/', limits: { fileSize: 10 * 1024 * 1024 } });
 
 // ── HELPERS ────────────────────────────────────────────────────────────────
 
@@ -67,7 +67,7 @@ router.post('/jpg-to-pdf', upload.array('images'), async (req, res) => {
   try {
     if (!req.files || req.files.length === 0)
       return res.status(400).json({ error: 'Please upload at least one image.' });
-    await imagesToPdf(req.files, res, 'from-images.pdf');
+    await imagesToPdf(req.files, res, 'fukpdf-jpg-to-pdf.pdf');
   } catch (err) { cleanupFiles(req.files); res.status(500).json({ error: err.message }); }
 });
 
@@ -75,7 +75,7 @@ router.post('/scan-to-pdf', upload.array('images'), async (req, res) => {
   try {
     if (!req.files || req.files.length === 0)
       return res.status(400).json({ error: 'Please upload at least one scanned image.' });
-    await imagesToPdf(req.files, res, 'scanned.pdf');
+    await imagesToPdf(req.files, res, 'fukpdf-scan-to-pdf.pdf');
   } catch (err) { cleanupFiles(req.files); res.status(500).json({ error: err.message }); }
 });
 
@@ -101,7 +101,7 @@ router.post('/pdf-to-word', upload.single('pdf'), async (req, res) => {
     cleanupFiles(req.file);
     sendFile(res, buf,
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'converted.docx');
+      'fukpdf-pdf-to-word.docx');
   } catch (err) { cleanupFiles(req.file); res.status(500).json({ error: err.message }); }
 });
 
@@ -143,7 +143,7 @@ router.post('/pdf-to-powerpoint', upload.single('pdf'), async (req, res) => {
     cleanupFiles(req.file);
     sendFile(res, buf,
       'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-      'converted.pptx');
+      'fukpdf-pdf-to-ppt.pptx');
   } catch (err) { cleanupFiles(req.file); res.status(500).json({ error: err.message }); }
 });
 
@@ -174,7 +174,7 @@ router.post('/pdf-to-excel', upload.single('pdf'), async (req, res) => {
     cleanupFiles(req.file);
     sendFile(res, buf,
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'converted.xlsx');
+      'fukpdf-pdf-to-excel.xlsx');
   } catch (err) { cleanupFiles(req.file); res.status(500).json({ error: err.message }); }
 });
 
@@ -202,7 +202,7 @@ router.post('/pdf-to-jpg', upload.single('pdf'), async (req, res) => {
       const imgBuf = fs.readFileSync(path.join(outputDir, files[0]));
       fs.rmSync(outputDir, { recursive: true, force: true });
       cleanupFiles(req.file);
-      return sendFile(res, imgBuf, 'image/jpeg', 'page-1.jpg');
+      return sendFile(res, imgBuf, 'image/jpeg', 'fukpdf-pdf-to-jpg.jpg');
     }
 
     const zip = new JSZip();
@@ -211,7 +211,7 @@ router.post('/pdf-to-jpg', upload.single('pdf'), async (req, res) => {
 
     fs.rmSync(outputDir, { recursive: true, force: true });
     cleanupFiles(req.file);
-    sendFile(res, zipBuf, 'application/zip', 'pdf-pages.zip');
+    sendFile(res, zipBuf, 'application/zip', 'fukpdf-pdf-to-jpg.zip');
   } catch (err) {
     cleanupFiles(req.file);
     res.status(500).json({ error: `PDF to JPG failed: ${err.message}. Ensure the PDF is not corrupted.` });
@@ -231,7 +231,7 @@ router.post('/word-to-pdf', upload.single('pdf'), async (req, res) => {
 
     const outBytes = await textToPdf(text, PDFDocument, StandardFonts, rgb);
     cleanupFiles(req.file);
-    sendPdf(res, outBytes, 'converted.pdf');
+    sendPdf(res, outBytes, 'fukpdf-word-to-pdf.pdf');
   } catch (err) { cleanupFiles(req.file); res.status(500).json({ error: err.message }); }
 });
 
@@ -263,7 +263,7 @@ router.post('/powerpoint-to-pdf', upload.single('pdf'), async (req, res) => {
 
     const outBytes = await textToPdf(allText, PDFDocument, StandardFonts, rgb);
     cleanupFiles(req.file);
-    sendPdf(res, outBytes, 'converted.pdf');
+    sendPdf(res, outBytes, 'fukpdf-ppt-to-pdf.pdf');
   } catch (err) { cleanupFiles(req.file); res.status(500).json({ error: err.message }); }
 });
 
@@ -315,7 +315,7 @@ router.post('/excel-to-pdf', upload.single('pdf'), async (req, res) => {
 
     const outBytes = await pdfDoc.save();
     cleanupFiles(req.file);
-    sendPdf(res, outBytes, 'converted.pdf');
+    sendPdf(res, outBytes, 'fukpdf-excel-to-pdf.pdf');
   } catch (err) { cleanupFiles(req.file); res.status(500).json({ error: err.message }); }
 });
 
@@ -336,7 +336,7 @@ router.post('/html-to-pdf', upload.single('pdf'), async (req, res) => {
 
     const outBytes = await textToPdf(text, PDFDocument, StandardFonts, rgb);
     cleanupFiles(req.file);
-    sendPdf(res, outBytes, 'converted.pdf');
+    sendPdf(res, outBytes, 'fukpdf-html-to-pdf.pdf');
   } catch (err) { cleanupFiles(req.file); res.status(500).json({ error: err.message }); }
 });
 

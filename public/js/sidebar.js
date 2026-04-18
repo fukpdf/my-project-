@@ -24,8 +24,8 @@ function buildSidebar(activeToolId) {
         </svg>
       </div>
       <div class="sidebar-logo-text">
-        PDF Tools Pro
-        <span>33 Professional Tools</span>
+        fukpdf.com
+        <span>33 Free PDF &amp; Image Tools</span>
       </div>
     </div>
 
