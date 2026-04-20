@@ -14,7 +14,7 @@ import imageRouter from './routes/image.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const PORT = 5000;
+const PORT = process.env.PORT||5000;
 const app = express();
 
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -26,7 +26,7 @@ app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'SAMEORIGIN');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.setHeader('X-Powered-By', 'fukpdf.com');
+  res.setHeader('X-Powered-By', 'PDFWAR');
   next();
 });
 
