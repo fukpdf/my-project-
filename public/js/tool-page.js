@@ -124,7 +124,7 @@ function setupFileInput() {
   const area  = document.getElementById('upload-area');
   if (!input || !area) return;
 
-  area.addEventListener('click', () => input.click());
+  //area.addEvenetListener('click', () => input.click());
   input.addEventListener('change', () => handleFiles(input.files));
   area.addEventListener('dragover',  e => { e.preventDefault(); area.classList.add('dragover'); });
   area.addEventListener('dragleave', () => area.classList.remove('dragover'));
