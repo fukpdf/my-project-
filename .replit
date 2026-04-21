@@ -1,4 +1,4 @@
-entrypoint = "index.js"
+entrypoint = "server.js"
 modules = ["nodejs-22"]
 hidden = [".config", "package-lock.json"]
 
@@ -10,7 +10,7 @@ channel = "stable-24_11"
 packages = ["zip", "nano", "railway"]
 
 [deployment]
-run = ["node", "index.js"]
+run = ["node", "server.js"]
 deploymentTarget = "autoscale"
 ignorePorts = false
 
@@ -40,6 +40,10 @@ outputType = "webview"
 task = "shell.exec"
 args = "node server.js"
 waitForPort = 5000
+
+[[ports]]
+localPort = 3000
+externalPort = 3000
 
 [[ports]]
 localPort = 5000

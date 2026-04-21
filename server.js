@@ -1,4 +1,4 @@
-const compression = require('compression');
+import compression from 'compression';
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
