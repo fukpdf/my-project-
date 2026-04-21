@@ -447,3 +447,4 @@ function escapeHtml(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 }
+document.addEventListener('DOMContentLoded' , () => { const btn = document.querySelector('.navbar-toggler') || document.querySelector('.menu-icon') || document.querySelector('header button'); const sb = document.querySelector('.sidebar'); if(btn && sb) {btn.oneclick = (e) => { e.preventDefault(); sb.classlist.toggle('active'); }; } });
