@@ -1,3 +1,4 @@
+const compression = require('compression');
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -16,6 +17,8 @@ const __dirname = path.dirname(__filename);
 
 const PORT = process.env.PORT||5000;
 const app = express();
+app.use(compression());
+app.use(express.static('public'));
 
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
