@@ -85,3 +85,4 @@ router.post('/unlock', upload.single('pdf'), async (req, res) => {
 });
 
 export default router;
+function toggleSidebar(){document.querySelector(".sidebar").classList.toggle("active")}

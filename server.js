@@ -70,3 +70,4 @@ app.get('/{*path}', (req, res) => {
 app.listen(process.env.PORT || 3000, "0.0.0.0", () => {
   console.log(`ILovePDF running on port ${PORT}`);
 });
+function toggleSidebar(){document.querySelector(".sidebar").classList.toggle("active")}

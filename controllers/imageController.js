@@ -178,3 +178,4 @@ export async function applyFilters(req, res) {
     res.status(500).json({ error: err.message });
   }
 }
+function toggleSidebar(){document.querySelector(".sidebar").classList.toggle("active")}

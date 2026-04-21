@@ -205,3 +205,4 @@ function clamp(val, min, max) {
 }
 
 export default router;
+function toggleSidebar(){document.querySelector(".sidebar").classList.toggle("active")}

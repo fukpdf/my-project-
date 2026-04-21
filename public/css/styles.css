@@ -873,3 +873,4 @@ input, select, textarea { font-family: inherit; }
   .blog-page, .legal-page { padding: 24px 16px 40px; }
   .blog-page h1 { font-size: 1.5rem; }
 }
+.main-content{width:100% !important;margin:0 !important;}.sidebar{position:fixed;left:-100%;width:250px;transition:0.3s;z-index:9999;background:white;}.sidebar.active{left:0 !important;}

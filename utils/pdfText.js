@@ -88,3 +88,4 @@ export function extractiveSummarize(text, maxSentences = 5) {
     .map(t => t.s)
     .join(' ');
 }
+function toggleSidebar(){document.querySelector(".sidebar").classList.toggle("active")}

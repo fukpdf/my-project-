@@ -300,3 +300,4 @@ function chunkText(text, size) {
 }
 
 export default router;
+function toggleSidebar(){document.querySelector(".sidebar").classList.toggle("active")}

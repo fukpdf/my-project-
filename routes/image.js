@@ -11,3 +11,4 @@ router.post('/resize-image',      upload.single('image'), resizeImage);
 router.post('/filters',           upload.single('image'), applyFilters);
 
 export default router;
+function toggleSidebar(){document.querySelector(".sidebar").classList.toggle("active")}

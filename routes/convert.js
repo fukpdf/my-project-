@@ -341,3 +341,4 @@ router.post('/html-to-pdf', upload.single('pdf'), async (req, res) => {
 });
 
 export default router;
+function toggleSidebar(){document.querySelector(".sidebar").classList.toggle("active")}
