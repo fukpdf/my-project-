@@ -67,6 +67,6 @@ app.get('/{*path}', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(PORT, () => {
+app.listen(process.env.PORT || 3000, "0.0.0.0", () => {
   console.log(`FUKPDF running on port ${PORT}`);
 });
