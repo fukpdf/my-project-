@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import rateLimit from 'express-rate-limit';
+import cookieParser from 'cookie-parser';
 
 import organizeRouter from './routes/organize.js';
 import editRouter from './routes/edit.js';
@@ -11,6 +12,7 @@ import convertRouter from './routes/convert.js';
 import securityRouter from './routes/security.js';
 import advancedRouter from './routes/advanced.js';
 import imageRouter from './routes/image.js';
+import authRouter from './routes/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -42,9 +44,11 @@ const apiLimiter = rateLimit({
 });
 
 app.use(express.json({ limit: '2mb' }));
+app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api', apiLimiter);
+app.use('/api', authRouter);
 app.use('/api', organizeRouter);
 app.use('/api', editRouter);
 app.use('/api', convertRouter);
