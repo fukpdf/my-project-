@@ -25,8 +25,9 @@
       <nav class="nav" id="nav" aria-label="Main"></nav>
 
       <div class="header-cta">
-        <a href="#" class="btn btn-ghost">Login</a>
-        <a href="#" class="btn btn-primary">Sign Up</a>
+        <a href="#" class="btn btn-ghost" data-auth="login">Login</a>
+        <a href="#" class="btn btn-ghost btn-signin" data-auth="signin">Sign In</a>
+        <a href="#" class="btn btn-primary" data-auth="signup">Sign Up</a>
         <button class="hamburger" id="hamburger" aria-label="Open menu">
           <i data-lucide="menu"></i>
         </button>
@@ -34,21 +35,10 @@
     </div>
   </header>
 
-  <!-- ───────────── Mobile drawer ───────────── -->
+  <!-- ───────────── Mobile drawer (filled by chrome.js) ───────────── -->
   <div class="drawer" id="drawer" aria-hidden="true">
     <div class="drawer-back"></div>
-    <div class="drawer-panel">
-      <button class="drawer-close" id="drawer-close" aria-label="Close menu"><i data-lucide="x"></i></button>
-      <a href="/merge-pdf">Merge PDF</a>
-      <a href="/split-pdf">Split PDF</a>
-      <a href="#cat-organize">Organize</a>
-      <a href="#cat-convert-from">Convert</a>
-      <a href="#cat-edit">Edit</a>
-      <a href="#cat-security">Security</a>
-      <a href="#tools-root">All Tools</a>
-      <a href="#" class="btn btn-ghost">Login</a>
-      <a href="#" class="btn btn-primary">Sign Up</a>
-    </div>
+    <div class="drawer-panel"></div>
   </div>
 
   <!-- ───────────── Page ───────────── -->
@@ -221,6 +211,7 @@
 
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="js/n2w-converter.js"></script>
+  <script src="js/chrome.js"></script>
   <script src="js/home.js"></script>
 </body>
 </html>
