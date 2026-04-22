@@ -13,6 +13,7 @@ import securityRouter from './routes/security.js';
 import advancedRouter from './routes/advanced.js';
 import imageRouter from './routes/image.js';
 import authRouter from './routes/auth.js';
+import { SLUG_MAP, buildHtml, getRedirect } from './utils/seo.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -67,6 +68,19 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error.' });
 });
 
+// ── SEO routes: /merge-pdf, /split-pdf, /pdf-to-word, /numbers-to-words … ──
+const TOOL_HTML = fs.readFileSync(path.join(__dirname, 'public', 'tool.html'), 'utf8');
+app.get('/:slug', (req, res, next) => {
+  const slug = req.params.slug;
+  if (!Object.prototype.hasOwnProperty.call(SLUG_MAP, slug)) return next();
+  const redir = getRedirect(slug);
+  if (redir) return res.redirect(302, redir);
+  const html = buildHtml(slug, TOOL_HTML);
+  if (!html) return next();
+  res.set('Cache-Control', 'public, max-age=300');
+  res.type('html').send(html);
+});
+
 app.get('/{*path}', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -74,4 +88,3 @@ app.get('/{*path}', (req, res) => {
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`ILovePDF running on port ${PORT}`);
 });
-function toggleSidebar(){document.querySelector(".sidebar").classList.toggle("active")}

@@ -3,8 +3,9 @@ let selectedFiles = [];   // array of { file, rotation, id }
 let dragSrcIndex = null;
 
 document.addEventListener('DOMContentLoaded', () => {
+  // SEO route injects window.__TOOL_ID; fall back to ?id=… for the legacy URL
   const params = new URLSearchParams(window.location.search);
-  const toolId = params.get('id');
+  const toolId = window.__TOOL_ID || params.get('id');
 
   currentTool = TOOLS.find(t => t.id === toolId);
   if (!currentTool) { window.location.href = '/'; return; }
@@ -271,6 +272,12 @@ async function processFile() {
   }
   if (!currentTool.working) { showComingSoon(currentTool.name); return; }
 
+  // Daily usage limit — guests 15/day, logged-in 100/day
+  if (window.UsageLimit && !window.UsageLimit.canUse()) {
+    window.UsageLimit.showLimitModal();
+    return;
+  }
+
   // Re-check 100MB limit defensively
   for (const e of selectedFiles) {
     if (e.file.size > MAX_FILE_BYTES) { showSignupModal(e.file); return; }
@@ -303,6 +310,7 @@ async function processFile() {
 
   try {
     const response = await fetch(currentTool.apiEndpoint, { method: 'POST', body: formData });
+    if (response.ok && window.UsageLimit) window.UsageLimit.record(selectedFiles.length);
     const ct = (response.headers.get('content-type') || '').toLowerCase();
 
     if (response.status === 413) {
