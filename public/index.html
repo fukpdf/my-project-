@@ -22,22 +22,12 @@
         <span class="brand-name">ILove<span>PDF</span></span>
       </a>
 
-      <nav class="nav" aria-label="Main">
-        <a href="#cat-organize">Organize</a>
-        <a href="#cat-convert-from">Convert</a>
-        <a href="#cat-edit">Edit</a>
-        <a href="#cat-security">Security</a>
-        <span class="nav-item" id="all-tools-wrap">
-          <button class="all-tools" id="all-tools-trigger" aria-haspopup="true" aria-expanded="false">
-            All Tools <i data-lucide="chevron-down"></i>
-          </button>
-          <div class="mega" id="mega" role="menu"></div>
-        </span>
-      </nav>
+      <nav class="nav" id="nav" aria-label="Main"></nav>
 
       <div class="header-cta">
-        <a href="#" class="btn btn-ghost">Login</a>
-        <a href="#" class="btn btn-primary">Sign Up</a>
+        <a href="#" class="btn btn-ghost" data-auth="login">Login</a>
+        <a href="#" class="btn btn-ghost btn-signin" data-auth="signin">Sign In</a>
+        <a href="#" class="btn btn-primary" data-auth="signup">Sign Up</a>
         <button class="hamburger" id="hamburger" aria-label="Open menu">
           <i data-lucide="menu"></i>
         </button>
@@ -45,19 +35,10 @@
     </div>
   </header>
 
-  <!-- ───────────── Mobile drawer ───────────── -->
+  <!-- ───────────── Mobile drawer (filled by chrome.js) ───────────── -->
   <div class="drawer" id="drawer" aria-hidden="true">
     <div class="drawer-back"></div>
-    <div class="drawer-panel">
-      <button class="drawer-close" id="drawer-close" aria-label="Close menu"><i data-lucide="x"></i></button>
-      <a href="#cat-organize">Organize</a>
-      <a href="#cat-convert-from">Convert</a>
-      <a href="#cat-edit">Edit</a>
-      <a href="#cat-security">Security</a>
-      <a href="#tools-root">All Tools</a>
-      <a href="#" class="btn btn-ghost">Login</a>
-      <a href="#" class="btn btn-primary">Sign Up</a>
-    </div>
+    <div class="drawer-panel"></div>
   </div>
 
   <!-- ───────────── Page ───────────── -->
@@ -66,7 +47,7 @@
     <!-- LEFT RAIL -->
     <aside class="rail" aria-label="Sidebar">
       <div class="rail-sticky">
-        <!-- Numbers to Words Calculator (sticky top) -->
+        <!-- Numbers to Words Calculator -->
         <div class="calc-card">
           <div class="calc-head">
             <span class="ico"><i data-lucide="calculator"></i></span>
@@ -103,6 +84,42 @@
             <div id="calc-out" class="calc-out" aria-live="polite"></div>
           </div>
         </div>
+
+        <!-- Live Currency Converter -->
+        <div class="calc-card">
+          <div class="calc-head alt">
+            <span class="ico"><i data-lucide="dollar-sign"></i></span>
+            <div>
+              <h3>Currency Converter</h3>
+              <p>Live rates · 50+ currencies</p>
+            </div>
+          </div>
+          <div class="calc-body">
+            <label class="calc-label" for="fx-amount">Amount</label>
+            <input id="fx-amount" class="calc-input" type="number" inputmode="decimal" value="1" min="0" step="any">
+
+            <div class="fx-row">
+              <div>
+                <label class="calc-label" for="fx-from">From</label>
+                <select id="fx-from" class="calc-input"></select>
+              </div>
+              <button id="fx-swap" class="fx-swap" aria-label="Swap currencies" title="Swap">
+                <i data-lucide="arrow-left-right"></i>
+              </button>
+              <div>
+                <label class="calc-label" for="fx-to">To</label>
+                <select id="fx-to" class="calc-input"></select>
+              </div>
+            </div>
+
+            <button id="fx-go" class="calc-btn" type="button">Convert</button>
+
+            <div id="fx-out" class="calc-out show fx-out">
+              <div class="fx-result" id="fx-result">—</div>
+              <div class="fx-rate" id="fx-rate">Loading rates…</div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Ad blocks (scroll normally) -->
@@ -117,20 +134,22 @@
 
       <!-- HERO -->
       <section class="hero" id="hero">
-        <span class="hero-eyebrow"><i data-lucide="sparkles"></i> 33+ Free Tools</span>
-        <h1>Every PDF &amp; Image Tool You'll Ever Need</h1>
-        <p>Merge, split, compress, convert, edit, sign and protect — plus AI summarizer, OCR and a full image suite. All free, all online, no installs required.</p>
-        <div class="hero-actions">
-          <a href="#tools-root" class="hero-btn"><i data-lucide="rocket"></i> Explore All Tools</a>
-          <a href="/tool.html?id=merge" class="hero-btn outline"><i data-lucide="layers"></i> Try Merge PDF</a>
+        <div class="hero-text">
+          <span class="hero-eyebrow"><i data-lucide="sparkles"></i> 33+ Free Tools</span>
+          <h1>Every PDF &amp; Image Tool You'll Ever Need</h1>
+          <p>Merge, split, compress, convert, edit, sign and protect — plus AI summarizer, OCR and a full image suite.</p>
+          <div class="hero-actions">
+            <a href="#tools-root" class="hero-btn"><i data-lucide="rocket"></i> Explore Tools</a>
+            <a href="/merge-pdf" class="hero-btn outline"><i data-lucide="layers"></i> Merge PDF</a>
+          </div>
         </div>
       </section>
 
-      <!-- Mobile-only "Open Calculator" toggle (shown <=1024px) -->
+      <!-- Mobile-only "Open Calculators" toggle (shown <=1024px) -->
       <button class="calc-toggle" id="calc-toggle" type="button" aria-expanded="false" aria-controls="calc-mobile-slot">
         <span class="ct-left">
           <span class="ct-ico"><i data-lucide="calculator"></i></span>
-          <span>Open Calculator <span style="display:block;font-size:.75rem;font-weight:500;color:var(--text-mute);margin-top:1px;">Numbers to Words converter</span></span>
+          <span>Open Calculators <span style="display:block;font-size:.75rem;font-weight:500;color:var(--text-mute);margin-top:1px;">Numbers &amp; live currency converter</span></span>
         </span>
         <i data-lucide="chevron-down" class="chev"></i>
       </button>
@@ -163,9 +182,9 @@
       <div class="footer-col">
         <h4>Product</h4>
         <a href="#tools-root">All Tools</a>
-        <a href="/tool.html?id=merge">Merge PDF</a>
-        <a href="/tool.html?id=compress">Compress</a>
-        <a href="/tool.html?id=pdf-to-word">PDF to Word</a>
+        <a href="/merge-pdf">Merge PDF</a>
+        <a href="/compress-pdf">Compress</a>
+        <a href="/pdf-to-word">PDF to Word</a>
       </div>
       <div class="footer-col">
         <h4>Company</h4>
@@ -194,6 +213,7 @@
 
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="js/n2w-converter.js"></script>
+  <script src="js/chrome.js"></script>
   <script src="js/home.js"></script>
 </body>
 </html>
