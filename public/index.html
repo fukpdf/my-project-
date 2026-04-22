@@ -22,18 +22,7 @@
         <span class="brand-name">ILove<span>PDF</span></span>
       </a>
 
-      <nav class="nav" aria-label="Main">
-        <a href="#cat-organize">Organize</a>
-        <a href="#cat-convert-from">Convert</a>
-        <a href="#cat-edit">Edit</a>
-        <a href="#cat-security">Security</a>
-        <span class="nav-item" id="all-tools-wrap">
-          <button class="all-tools" id="all-tools-trigger" aria-haspopup="true" aria-expanded="false">
-            All Tools <i data-lucide="chevron-down"></i>
-          </button>
-          <div class="mega" id="mega" role="menu"></div>
-        </span>
-      </nav>
+      <nav class="nav" id="nav" aria-label="Main"></nav>
 
       <div class="header-cta">
         <a href="#" class="btn btn-ghost">Login</a>
@@ -50,6 +39,8 @@
     <div class="drawer-back"></div>
     <div class="drawer-panel">
       <button class="drawer-close" id="drawer-close" aria-label="Close menu"><i data-lucide="x"></i></button>
+      <a href="/merge-pdf">Merge PDF</a>
+      <a href="/split-pdf">Split PDF</a>
       <a href="#cat-organize">Organize</a>
       <a href="#cat-convert-from">Convert</a>
       <a href="#cat-edit">Edit</a>
@@ -66,8 +57,8 @@
     <!-- LEFT RAIL -->
     <aside class="rail" aria-label="Sidebar">
       <div class="rail-sticky">
-        <!-- Numbers to Words Calculator (sticky top) -->
-        <div class="calc-card">
+        <!-- Numbers to Words Calculator -->
+        <div class="calc-card" id="calc-card-n2w">
           <div class="calc-head">
             <span class="ico"><i data-lucide="calculator"></i></span>
             <div>
@@ -103,9 +94,43 @@
             <div id="calc-out" class="calc-out" aria-live="polite"></div>
           </div>
         </div>
+
+        <!-- Live Currency Converter -->
+        <div class="calc-card calc-card-fx" id="calc-card-fx">
+          <div class="calc-head alt">
+            <span class="ico"><i data-lucide="dollar-sign"></i></span>
+            <div>
+              <h3>Currency Converter</h3>
+              <p>Live rates · 50+ currencies</p>
+            </div>
+          </div>
+          <div class="calc-body">
+            <label class="calc-label" for="fx-amount">Amount</label>
+            <input id="fx-amount" class="calc-input" type="number" inputmode="decimal" value="1" min="0" step="any">
+
+            <div class="fx-row">
+              <div>
+                <label class="calc-label" for="fx-from">From</label>
+                <select id="fx-from" class="calc-input"></select>
+              </div>
+              <button id="fx-swap" class="fx-swap" aria-label="Swap currencies" title="Swap">
+                <i data-lucide="arrow-left-right"></i>
+              </button>
+              <div>
+                <label class="calc-label" for="fx-to">To</label>
+                <select id="fx-to" class="calc-input"></select>
+              </div>
+            </div>
+
+            <div id="fx-out" class="calc-out show fx-out">
+              <div class="fx-result" id="fx-result">—</div>
+              <div class="fx-rate" id="fx-rate">Loading rates…</div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- Ad blocks (scroll normally) -->
+      <!-- Ad blocks -->
       <div class="ad">Advertisement</div>
       <div class="ad">Advertisement</div>
       <div class="ad">Advertisement</div>
@@ -115,22 +140,24 @@
     <!-- RIGHT CONTENT -->
     <main class="content">
 
-      <!-- HERO -->
-      <section class="hero" id="hero">
-        <span class="hero-eyebrow"><i data-lucide="sparkles"></i> 33+ Free Tools</span>
-        <h1>Every PDF &amp; Image Tool You'll Ever Need</h1>
-        <p>Merge, split, compress, convert, edit, sign and protect — plus AI summarizer, OCR and a full image suite. All free, all online, no installs required.</p>
-        <div class="hero-actions">
-          <a href="#tools-root" class="hero-btn"><i data-lucide="rocket"></i> Explore All Tools</a>
-          <a href="/tool.html?id=merge" class="hero-btn outline"><i data-lucide="layers"></i> Try Merge PDF</a>
+      <!-- HERO (compact) -->
+      <section class="hero hero-compact" id="hero">
+        <div class="hero-text">
+          <span class="hero-eyebrow"><i data-lucide="sparkles"></i> 33+ Free Tools</span>
+          <h1>Every PDF &amp; Image Tool You'll Ever Need</h1>
+          <p>Merge, split, compress, convert, edit, sign and protect — plus AI summarizer, OCR and a full image suite.</p>
+          <div class="hero-actions">
+            <a href="#tools-root" class="hero-btn"><i data-lucide="rocket"></i> Explore Tools</a>
+            <a href="/merge-pdf" class="hero-btn outline"><i data-lucide="layers"></i> Merge PDF</a>
+          </div>
         </div>
       </section>
 
-      <!-- Mobile-only "Open Calculator" toggle (shown <=1024px) -->
+      <!-- Mobile-only "Open Calculator" toggle -->
       <button class="calc-toggle" id="calc-toggle" type="button" aria-expanded="false" aria-controls="calc-mobile-slot">
         <span class="ct-left">
           <span class="ct-ico"><i data-lucide="calculator"></i></span>
-          <span>Open Calculator <span style="display:block;font-size:.75rem;font-weight:500;color:var(--text-mute);margin-top:1px;">Numbers to Words converter</span></span>
+          <span>Open Calculators <span style="display:block;font-size:.75rem;font-weight:500;color:var(--text-mute);margin-top:1px;">Numbers to Words &amp; Currency Converter</span></span>
         </span>
         <i data-lucide="chevron-down" class="chev"></i>
       </button>
@@ -163,9 +190,9 @@
       <div class="footer-col">
         <h4>Product</h4>
         <a href="#tools-root">All Tools</a>
-        <a href="/tool.html?id=merge">Merge PDF</a>
-        <a href="/tool.html?id=compress">Compress</a>
-        <a href="/tool.html?id=pdf-to-word">PDF to Word</a>
+        <a href="/merge-pdf">Merge PDF</a>
+        <a href="/compress-pdf">Compress</a>
+        <a href="/pdf-to-word">PDF to Word</a>
       </div>
       <div class="footer-col">
         <h4>Company</h4>
