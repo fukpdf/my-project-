@@ -10,6 +10,14 @@ const CATEGORIES = [
 ];
 
 const TOOLS = [
+  // ── ADVANCED TOOLS — N2W ──────────────────────────────────────────────────
+  {
+    id: 'numbers-to-words', name: 'Numbers to Words',
+    icon: 'hash', url: '/n2w.html',
+    description: 'Convert numbers, currency, or check amounts into words',
+    category: 'Advanced Tools', group: 'pdf', badge: 'NEW',
+    working: true, options: []
+  },
   // ── ORGANIZE PDFs ─────────────────────────────────────────────────────────
   {
     id: 'merge', name: 'Merge', icon: 'layers',

@@ -77,8 +77,9 @@ function renderDashboard(tools, filter, query) {
         : `<span class="card-badge badge-soon-card">Coming Soon</span>`;
 
       if (isWorking) {
+        const href = tool.url || `tool.html?id=${tool.id}`;
         html += `
-          <a href="tool.html?id=${tool.id}" class="tool-card" title="${tool.description}">
+          <a href="${href}" class="tool-card" title="${tool.description}">
             <div style="display:flex;align-items:center;justify-content:space-between">
               <div class="tool-card-icon" style="background:${bgAlpha}; color:${color}">
                 <i data-lucide="${tool.icon}"></i>
