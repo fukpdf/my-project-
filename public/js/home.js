@@ -91,21 +91,42 @@ const FX_LIST = [
   ['QAR','Qatari Riyal'],['KWD','Kuwaiti Dinar'],['BHD','Bahraini Dinar'],
 ];
 
+/* Static fallback (rates per 1 USD, approx) — used only if every live API fails. */
+const FX_STATIC = {
+  usd:1, eur:0.92, gbp:0.79, jpy:155.0, cny:7.25, inr:83.4, pkr:278.0,
+  aed:3.67, sar:3.75, cad:1.36, aud:1.52, chf:0.88, try:32.5, rub:92.0,
+  sgd:1.34, myr:4.7, thb:36.0, idr:15800, hkd:7.82, krw:1370, nzd:1.65,
+  zar:18.6, brl:5.05, mxn:17.1, sek:10.6, nok:10.8, dkk:6.85, pln:3.95,
+  egp:48.5, ngn:1480, bdt:117, vnd:25400, php:57.0, ils:3.7,
+  qar:3.64, kwd:0.307, bhd:0.376
+};
+
 let FX_RATES = null;
+let FX_FALLBACK_USED = false;
+
+const fetchTimeout = (url, ms = 5000) => new Promise((resolve, reject) => {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => { ctrl.abort(); reject(new Error('timeout')); }, ms);
+  fetch(url, { cache:'no-cache', signal: ctrl.signal })
+    .then(r => { clearTimeout(timer); r.ok ? resolve(r) : reject(new Error(r.status)); })
+    .catch(err => { clearTimeout(timer); reject(err); });
+});
 
 async function loadRates(){
-  const url = 'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json';
-  const fallback = 'https://latest.currency-api.pages.dev/v1/currencies/usd.json';
-  try {
-    const r = await fetch(url, { cache:'no-cache' });
-    if (!r.ok) throw new Error(r.status);
-    return (await r.json()).usd;
-  } catch (e) {
+  const sources = [
+    'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json',
+    'https://latest.currency-api.pages.dev/v1/currencies/usd.json',
+    'https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/usd.json'
+  ];
+  for (const url of sources) {
     try {
-      const r = await fetch(fallback, { cache:'no-cache' });
-      return (await r.json()).usd;
-    } catch (e2) { return null; }
+      const r = await fetchTimeout(url, 5000);
+      const data = await r.json();
+      if (data && data.usd && typeof data.usd === 'object') return data.usd;
+    } catch (e) { /* try next */ }
   }
+  FX_FALLBACK_USED = true;
+  return FX_STATIC;
 }
 
 function fxConvert(amount, from, to){
@@ -125,10 +146,12 @@ async function wireFx(){
   const from   = document.getElementById('fx-from');
   const to     = document.getElementById('fx-to');
   const swap   = document.getElementById('fx-swap');
+  const goBtn  = document.getElementById('fx-go');
   const result = document.getElementById('fx-result');
   const rate   = document.getElementById('fx-rate');
   if (!amount || !from || !to) return;
 
+  // Populate dropdowns IMMEDIATELY (independent of rate fetch)
   const opts = FX_LIST.map(([c,n]) => `<option value="${c}">${c} — ${n}</option>`).join('');
   from.innerHTML = opts; to.innerHTML = opts;
   from.value = 'USD'; to.value = 'EUR';
@@ -138,18 +161,21 @@ async function wireFx(){
     if (!isFinite(a) || a < 0) { result.textContent = '—'; rate.textContent = 'Enter a valid amount.'; return; }
     if (!FX_RATES) { result.textContent = '—'; rate.textContent = 'Loading rates…'; return; }
     const v = fxConvert(a, from.value, to.value);
-    if (v === null) { result.textContent = '—'; rate.textContent = 'Rate unavailable.'; return; }
+    if (v === null) { result.textContent = '—'; rate.textContent = 'Rate unavailable for this pair.'; return; }
     result.textContent = fmtMoney(v, to.value);
     const one = fxConvert(1, from.value, to.value);
-    rate.textContent = `1 ${from.value} = ${one.toFixed(4)} ${to.value}`;
+    const note = FX_FALLBACK_USED ? '  (offline rates)' : '';
+    rate.textContent = `1 ${from.value} = ${one.toFixed(4)} ${to.value}${note}`;
   };
 
   [amount, from, to].forEach(el => el.addEventListener('input', update));
   swap.addEventListener('click', () => { const t = from.value; from.value = to.value; to.value = t; update(); });
+  goBtn && goBtn.addEventListener('click', update);
 
   rate.textContent = 'Loading rates…';
-  FX_RATES = await loadRates();
-  if (!FX_RATES) { rate.textContent = 'Rates unavailable. Try again later.'; return; }
+  // Hard cap: even if loadRates somehow stalls, fall back after 6s.
+  const timeout = new Promise(res => setTimeout(() => { FX_FALLBACK_USED = true; res(FX_STATIC); }, 6000));
+  FX_RATES = await Promise.race([loadRates(), timeout]);
   update();
 }
 
