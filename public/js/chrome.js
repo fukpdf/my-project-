@@ -126,7 +126,6 @@ function renderDrawer(){
   if (!drawer) return;
   const panel = drawer.querySelector('.drawer-panel');
   if (!panel) return;
-  // Build drawer body (skip header close button)
   panel.innerHTML = `
     <button class="drawer-close" id="drawer-close" aria-label="Close menu"><i data-lucide="x"></i></button>
     <a href="/merge-pdf">Merge PDF</a>
@@ -191,16 +190,10 @@ function ensureAuthModal(){
     </div>`;
   document.body.appendChild(wrap);
 
-  const back  = wrap.querySelector('.auth-back');
-  const close = wrap.querySelector('.auth-close');
-  back.addEventListener('click', () => closeAuth());
-  close.addEventListener('click', () => closeAuth());
+  wrap.querySelector('.auth-back').addEventListener('click', closeAuth);
+  wrap.querySelector('.auth-close').addEventListener('click', closeAuth);
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAuth(); });
-
-  wrap.querySelectorAll('.auth-tab').forEach(t => {
-    t.addEventListener('click', () => setAuthTab(t.dataset.tab));
-  });
-
+  wrap.querySelectorAll('.auth-tab').forEach(t => t.addEventListener('click', () => setAuthTab(t.dataset.tab)));
   wrap.querySelector('#auth-form').addEventListener('submit', e => {
     e.preventDefault();
     const tab = wrap.dataset.tab || 'login';
@@ -232,13 +225,12 @@ function setAuthTab(tab){
 function openAuth(tab){
   ensureAuthModal();
   setAuthTab(tab || 'login');
-  const wrap = document.getElementById('auth-modal');
-  wrap.classList.add('open');
+  document.getElementById('auth-modal').classList.add('open');
   if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
 }
 function closeAuth(){
-  const wrap = document.getElementById('auth-modal');
-  if (wrap) wrap.classList.remove('open');
+  const w = document.getElementById('auth-modal');
+  if (w) w.classList.remove('open');
 }
 
 function wireAuth(){
@@ -250,7 +242,6 @@ function wireAuth(){
   });
 }
 
-/* Boot */
 document.addEventListener('DOMContentLoaded', () => {
   renderHeader();
   renderDrawer();

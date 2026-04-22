@@ -1,4 +1,4 @@
-/* Homepage-only logic — tools grid, calculators, mobile toggle.
+/* Homepage-only logic — tools grid, calculators, mobile toggle, currency converter.
    Header + drawer + auth modal live in chrome.js (loaded on every page). */
 
 const homeToolUrl = id => `/${id}`;
@@ -89,6 +89,7 @@ const FX_LIST = [
   ['EGP','Egyptian Pound'],['NGN','Nigerian Naira'],['BDT','Bangladeshi Taka'],
   ['VND','Vietnamese Dong'],['PHP','Philippine Peso'],['ILS','Israeli Shekel'],
   ['QAR','Qatari Riyal'],['KWD','Kuwaiti Dinar'],['BHD','Bahraini Dinar'],
+  ['OMR','Omani Rial'],['JOD','Jordanian Dinar'],['LKR','Sri Lankan Rupee'],
 ];
 
 /* Static fallback (rates per 1 USD, approx) — used only if every live API fails. */
@@ -98,7 +99,7 @@ const FX_STATIC = {
   sgd:1.34, myr:4.7, thb:36.0, idr:15800, hkd:7.82, krw:1370, nzd:1.65,
   zar:18.6, brl:5.05, mxn:17.1, sek:10.6, nok:10.8, dkk:6.85, pln:3.95,
   egp:48.5, ngn:1480, bdt:117, vnd:25400, php:57.0, ils:3.7,
-  qar:3.64, kwd:0.307, bhd:0.376
+  qar:3.64, kwd:0.307, bhd:0.376, omr:0.385, jod:0.709, lkr:300.0
 };
 
 let FX_RATES = null;
