@@ -141,6 +141,21 @@ function wireMega(){
   document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
 }
 
+/* ----------------------- mobile calculator toggle ----------------------- */
+function wireCalcToggle(){
+  const btn  = document.getElementById('calc-toggle');
+  const slot = document.getElementById('calc-mobile-slot');
+  const card = document.querySelector('.rail-sticky .calc-card');
+  if (!btn || !slot || !card) return;
+  btn.addEventListener('click', () => {
+    const open = card.classList.toggle('mobile-open');
+    btn.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', String(open));
+    if (open) slot.appendChild(card);
+    else card.parentNode === slot && document.querySelector('.rail-sticky').appendChild(card);
+  });
+}
+
 /* ----------------------- mobile drawer ----------------------- */
 function wireDrawer(){
   const drawer = document.getElementById('drawer');
@@ -198,6 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
   wireMega();
   wireDrawer();
   wireCalc();
+  wireCalcToggle();
   if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
   // re-run after icons load (script may load async)
   const tryIcons = () => window.lucide && window.lucide.createIcons && window.lucide.createIcons();
