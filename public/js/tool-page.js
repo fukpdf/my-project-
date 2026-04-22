@@ -1,5 +1,6 @@
 let currentTool = null;
-let selectedFiles = [];
+let selectedFiles = [];   // array of { file, rotation, id }
+let dragSrcIndex = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
@@ -16,24 +17,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function renderToolPage(tool) {
   const catMeta = CATEGORIES.find(c => c.name === tool.category);
-  const color = catMeta ? catMeta.color : '#6366f1';
+  const color = catMeta ? catMeta.color : '#E5322E';
 
-  document.title = `${tool.name} Online Free — fukpdf.com`;
-  let metaDesc = document.querySelector('meta[name="description"]');
-  if (!metaDesc) { metaDesc = document.createElement('meta'); metaDesc.name = 'description'; document.head.appendChild(metaDesc); }
-  metaDesc.content = `Free online ${tool.name} tool. ${tool.description}. No signup required — fast, secure, and free on fukpdf.com.`;
-  let metaKw = document.querySelector('meta[name="keywords"]');
-  if (!metaKw) { metaKw = document.createElement('meta'); metaKw.name = 'keywords'; document.head.appendChild(metaKw); }
-  metaKw.content = `${tool.name.toLowerCase()}, ${tool.name.toLowerCase()} online, ${tool.name.toLowerCase()} free, fukpdf, pdf tools online`;
-  const topbarTitle = document.getElementById('topbar-title');
-  if (topbarTitle) topbarTitle.textContent = tool.name;
+  document.title = `${tool.name} Online Free — ILovePDF`;
+  setMeta('description', `Free online ${tool.name} tool. ${tool.description}. No signup required — fast, secure, and free on ILovePDF.`);
+  setMeta('keywords', `${tool.name.toLowerCase()}, ${tool.name.toLowerCase()} online, ${tool.name.toLowerCase()} free, ilovepdf, pdf tools online`);
 
   const container = document.getElementById('tool-content');
   if (!container) return;
 
   const bgAlpha = hexToRgba(color, 0.12);
   const statusHtml = tool.working
-    ? `<span class="tool-status status-live"><span class="status-dot"></span>Live & Ready</span>`
+    ? `<span class="tool-status status-live"><span class="status-dot"></span>Live &amp; Ready</span>`
     : `<span class="tool-status status-soon"><span class="status-dot"></span>Coming Soon</span>`;
 
   let optionsHtml = '';
@@ -82,12 +77,15 @@ function renderToolPage(tool) {
       </div>
 
       <div class="upload-section">
-        <span class="upload-label"><i data-lucide="upload-cloud" style="display:inline-block;width:13px;height:13px;vertical-align:middle;margin-right:5px;"></i>${fileLabel}</span>
+        <span class="upload-label">
+          <i data-lucide="upload-cloud" style="display:inline-block;width:13px;height:13px;vertical-align:middle;margin-right:5px;"></i>
+          ${fileLabel}
+        </span>
         <div class="upload-area" id="upload-area">
           <input type="file" id="file-input" accept="${tool.acceptedFiles}" ${multiAttr}>
           <div class="upload-icon"><i data-lucide="upload-cloud"></i></div>
-          <div class="upload-text">Drag & drop or click to browse</div>
-          <div class="upload-hint">Accepted: ${tool.acceptedFiles} ${tool.multipleFiles ? '· Multiple files allowed' : ''}</div>
+          <div class="upload-text">Drag &amp; drop or click to browse</div>
+          <div class="upload-hint">Accepted: ${tool.acceptedFiles} · Max 100&nbsp;MB ${tool.multipleFiles ? '· Multiple files allowed · Drag to reorder' : ''}</div>
         </div>
         <div class="upload-files-list" id="files-list"></div>
       </div>
@@ -105,15 +103,11 @@ function renderToolPage(tool) {
 
       <div id="result-area"></div>
 
-      <div class="ad-slot ad-rectangle" aria-label="Advertisement" style="margin-top:24px;">
-        <span class="ad-label">Advertisement</span>
-      </div>
-
       ${renderSeoContent(tool)}
     </div>
   `;
 
-  lucide.createIcons();
+  if (window.lucide) lucide.createIcons();
   setupFileInput();
 }
 
@@ -124,7 +118,10 @@ function setupFileInput() {
   const area  = document.getElementById('upload-area');
   if (!input || !area) return;
 
-  //area.addEvenetListener('click', () => input.click());
+  area.addEventListener('click', e => {
+    if (e.target.closest('input')) return;
+    input.click();
+  });
   input.addEventListener('change', () => handleFiles(input.files));
   area.addEventListener('dragover',  e => { e.preventDefault(); area.classList.add('dragover'); });
   area.addEventListener('dragleave', () => area.classList.remove('dragover'));
@@ -136,12 +133,31 @@ function setupFileInput() {
 
 function handleFiles(fileList) {
   if (!fileList || fileList.length === 0) return;
+
+  const incoming = Array.from(fileList);
+
+  // 100MB client-side check → show Sign Up Required modal
+  for (const f of incoming) {
+    if (f.size > MAX_FILE_BYTES) {
+      showSignupModal(f);
+      const inputEl = document.getElementById('file-input');
+      if (inputEl) inputEl.value = '';
+      return;
+    }
+  }
+
+  const wrapped = incoming.map(f => ({ file: f, rotation: 0, id: cryptoId() }));
+
   if (currentTool.multipleFiles) {
-    selectedFiles = [...selectedFiles, ...Array.from(fileList)];
+    selectedFiles = [...selectedFiles, ...wrapped];
   } else {
-    selectedFiles = [fileList[0]];
+    selectedFiles = [wrapped[0]];
   }
   renderFileList();
+}
+
+function cryptoId() {
+  return 'f' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 }
 
 function renderFileList() {
@@ -156,17 +172,82 @@ function renderFileList() {
   }
   if (clearBtn) clearBtn.style.display = 'inline-flex';
 
-  list.innerHTML = selectedFiles.map((f, i) => `
-    <div class="upload-file-item">
-      <i data-lucide="file"></i>
-      <span class="upload-file-name">${f.name}</span>
-      <span class="upload-file-size">${formatBytes(f.size)}</span>
-      <button class="upload-file-remove" onclick="removeFile(${i})" title="Remove">
-        <i data-lucide="x"></i>
-      </button>
-    </div>
-  `).join('');
-  lucide.createIcons();
+  list.innerHTML = selectedFiles.map((entry, i) => {
+    const f = entry.file;
+    const isImage = /^image\//.test(f.type);
+    const thumb = isImage
+      ? `<div class="file-thumb-wrap"><img src="${URL.createObjectURL(f)}" alt="" style="transform:rotate(${entry.rotation}deg)"></div>`
+      : `<div class="file-thumb-wrap"><i data-lucide="file-text"></i></div>`;
+    return `
+      <div class="upload-file-item" draggable="true" data-index="${i}">
+        <i data-lucide="grip-vertical" class="file-drag-handle"></i>
+        ${thumb}
+        <span class="upload-file-name">${escapeHtml(f.name)}</span>
+        <span class="upload-file-size">${formatBytes(f.size)}</span>
+        <button class="file-rotate-btn" title="Rotate 90°" onclick="rotateFile(${i})" aria-label="Rotate file">
+          <i data-lucide="rotate-cw"></i>
+        </button>
+        <button class="upload-file-remove" onclick="removeFile(${i})" title="Remove" aria-label="Remove file">
+          <i data-lucide="x"></i>
+        </button>
+      </div>`;
+  }).join('');
+
+  if (window.lucide) lucide.createIcons();
+  attachDragHandlers();
+}
+
+function attachDragHandlers() {
+  const items = document.querySelectorAll('#files-list .upload-file-item');
+  items.forEach(el => {
+    el.addEventListener('dragstart', e => {
+      dragSrcIndex = parseInt(el.dataset.index, 10);
+      el.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', String(dragSrcIndex));
+    });
+    el.addEventListener('dragend', () => {
+      el.classList.remove('dragging');
+      items.forEach(i => i.classList.remove('drop-target'));
+    });
+    el.addEventListener('dragover', e => {
+      e.preventDefault();
+      el.classList.add('drop-target');
+    });
+    el.addEventListener('dragleave', () => el.classList.remove('drop-target'));
+    el.addEventListener('drop', e => {
+      e.preventDefault();
+      const target = parseInt(el.dataset.index, 10);
+      if (dragSrcIndex === null || dragSrcIndex === target) return;
+      const moved = selectedFiles.splice(dragSrcIndex, 1)[0];
+      selectedFiles.splice(target, 0, moved);
+      dragSrcIndex = null;
+      renderFileList();
+    });
+
+    // Touch fallback: long-press + swap with neighbour using touch events
+    let touchStartY = null;
+    el.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, { passive: true });
+    el.addEventListener('touchend', e => {
+      if (touchStartY === null) return;
+      const dy = e.changedTouches[0].clientY - touchStartY;
+      const idx = parseInt(el.dataset.index, 10);
+      if (Math.abs(dy) > 30) {
+        const swap = dy > 0 ? idx + 1 : idx - 1;
+        if (swap >= 0 && swap < selectedFiles.length) {
+          [selectedFiles[idx], selectedFiles[swap]] = [selectedFiles[swap], selectedFiles[idx]];
+          renderFileList();
+        }
+      }
+      touchStartY = null;
+    });
+  });
+}
+
+function rotateFile(index) {
+  if (!selectedFiles[index]) return;
+  selectedFiles[index].rotation = (selectedFiles[index].rotation + 90) % 360;
+  renderFileList();
 }
 
 function removeFile(index) { selectedFiles.splice(index, 1); renderFileList(); }
@@ -174,7 +255,8 @@ function removeFile(index) { selectedFiles.splice(index, 1); renderFileList(); }
 function clearAll() {
   selectedFiles = [];
   renderFileList();
-  document.getElementById('result-area').innerHTML = '';
+  const r = document.getElementById('result-area');
+  if (r) r.innerHTML = '';
   const input = document.getElementById('file-input');
   if (input) input.value = '';
 }
@@ -187,9 +269,11 @@ async function processFile() {
     showStatus('error', 'No file selected', 'Please upload a file before processing.');
     return;
   }
-  if (!currentTool.working) {
-    showComingSoon(currentTool.name);
-    return;
+  if (!currentTool.working) { showComingSoon(currentTool.name); return; }
+
+  // Re-check 100MB limit defensively
+  for (const e of selectedFiles) {
+    if (e.file.size > MAX_FILE_BYTES) { showSignupModal(e.file); return; }
   }
 
   const formData = new FormData();
@@ -199,18 +283,21 @@ async function processFile() {
                        currentTool.id === 'scan-to-pdf' ||
                        currentTool.id === 'jpg-to-pdf';
     const field = isImgInput ? 'images' : 'pdfs';
-    selectedFiles.forEach(f => formData.append(field, f));
+    selectedFiles.forEach(e => formData.append(field, e.file));
   } else {
     const field = currentTool.group === 'image' ? 'image' : 'pdf';
-    formData.append(field, selectedFiles[0]);
+    formData.append(field, selectedFiles[0].file);
   }
+
+  // Per-file rotations (server may use; safe to ignore otherwise)
+  formData.append('rotations', JSON.stringify(selectedFiles.map(e => e.rotation)));
 
   currentTool.options.forEach(opt => {
     const el = document.getElementById(`opt-${opt.id}`);
     if (el && el.value.trim() !== '') formData.append(opt.id, el.value.trim());
   });
 
-  showStatus('loading', 'Processing…', 'Please wait while your file is being processed.');
+  showProcessing(`Processing ${currentTool.name}…`, 'Your file is being processed securely. This usually takes only a few seconds.');
   const processBtn = document.getElementById('process-btn');
   if (processBtn) processBtn.disabled = true;
 
@@ -218,48 +305,66 @@ async function processFile() {
     const response = await fetch(currentTool.apiEndpoint, { method: 'POST', body: formData });
     const ct = (response.headers.get('content-type') || '').toLowerCase();
 
-    if (response.status === 501) { showComingSoon(currentTool.name); return; }
+    if (response.status === 413) {
+      hideProcessing();
+      showSignupModal(selectedFiles[0].file);
+      return;
+    }
+    if (response.status === 501) { hideProcessing(); showComingSoon(currentTool.name); return; }
 
     if (!response.ok) {
       const json = await response.json().catch(() => ({ error: 'Unknown error occurred.' }));
+      hideProcessing();
       showStatus('error', 'Processing failed', json.error || 'An unexpected error occurred.');
       return;
     }
 
-    // Downloadable binary responses
     const downloadMimes = [
-      'application/pdf',
-      'application/vnd.',
+      'application/pdf', 'application/vnd.',
       'image/jpeg', 'image/png', 'image/webp',
       'application/zip',
     ];
     if (downloadMimes.some(m => ct.includes(m))) {
       const blob = await response.blob();
       const ext  = mimeToExt(ct);
-      const filename = `fukpdf-${currentTool.id}${ext}`;
+      const filename = brandedFilename(selectedFiles[0].file.name, ext);
+      hideProcessing();
       triggerDownload(blob, filename);
       showStatus('success', 'File ready!',
-        `Your ${ext.replace('.', '').toUpperCase()} file is downloading now.`,
+        `Your ${ext.replace('.', '').toUpperCase()} file has downloaded as <code>${escapeHtml(filename)}</code>.`,
         URL.createObjectURL(blob), filename);
       return;
     }
 
-    // JSON response
     const json = await response.json().catch(() => ({}));
-
+    hideProcessing();
     if (json.text)    { showTextResult(json.text, 'Extracted Text');    return; }
     if (json.summary) { showTextResult(json.summary, 'Summary');        return; }
     if (json.report)  { showReport(json.report);                        return; }
-
     showStatus('success', 'Done!', json.message || 'Processing complete.');
   } catch (err) {
+    hideProcessing();
     showStatus('error', 'Connection error', 'Could not connect to the server. Please try again.');
   } finally {
     if (processBtn) processBtn.disabled = false;
   }
 }
 
+// ── BRANDED FILENAME ───────────────────────────────────────────────────────
+// Returns "ILovePDF-[Original-Name].<ext>" — strips original ext, sanitises.
+function brandedFilename(originalName, newExt) {
+  const base = (originalName || 'file').replace(/\.[^.]+$/, '');
+  const safe = base.replace(/[^A-Za-z0-9._-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') || 'file';
+  return `ILovePDF-${safe}${newExt}`;
+}
+
 // ── HELPERS ────────────────────────────────────────────────────────────────
+
+function setMeta(name, content) {
+  let m = document.querySelector(`meta[name="${name}"]`);
+  if (!m) { m = document.createElement('meta'); m.name = name; document.head.appendChild(m); }
+  m.content = content;
+}
 
 function mimeToExt(ct) {
   if (ct.includes('application/pdf')) return '.pdf';
@@ -275,28 +380,20 @@ function mimeToExt(ct) {
 
 function triggerDownload(blob, filename) {
   const url = URL.createObjectURL(blob);
-  const a   = document.createElement('a');
-  a.href     = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 30000);
 }
-
-// ── RESULT DISPLAY ─────────────────────────────────────────────────────────
 
 function showStatus(type, title, message, downloadUrl, filename) {
   const area = document.getElementById('result-area');
   if (!area) return;
-
-  const icons   = { loading: `<div class="spinner"></div>`, success: `<i data-lucide="check-circle-2"></i>`, error: `<i data-lucide="alert-circle"></i>` };
+  const icons = { loading: `<div class="spinner"></div>`, success: `<i data-lucide="check-circle-2"></i>`, error: `<i data-lucide="alert-circle"></i>` };
   const classes = { loading: 'status-loading', success: 'status-success', error: 'status-error' };
-
   const downloadBtn = (downloadUrl && filename)
     ? `<div class="download-btn-wrap"><a href="${downloadUrl}" download="${filename}" class="btn btn-primary"><i data-lucide="download"></i> Download Again</a></div>`
     : '';
-
   area.innerHTML = `
     <div class="status-card ${classes[type]}">
       ${icons[type]}
@@ -306,36 +403,31 @@ function showStatus(type, title, message, downloadUrl, filename) {
         ${downloadBtn}
       </div>
     </div>`;
-  lucide.createIcons();
+  if (window.lucide) lucide.createIcons();
 }
 
 function showTextResult(text, label = 'Result') {
   const area = document.getElementById('result-area');
   if (!area) return;
-
   area.innerHTML = `
     <div class="text-result-card">
       <div class="text-result-header">
         <span class="text-result-label"><i data-lucide="file-text"></i> ${label}</span>
-        <button class="btn btn-outline btn-sm" onclick="copyTextResult(this)">
-          <i data-lucide="copy"></i> Copy
-        </button>
+        <button class="btn btn-outline btn-sm" onclick="copyTextResult(this)"><i data-lucide="copy"></i> Copy</button>
       </div>
       <textarea class="text-result-area" readonly>${escapeHtml(text)}</textarea>
     </div>`;
-  lucide.createIcons();
+  if (window.lucide) lucide.createIcons();
 }
 
 function showReport(report) {
   const area = document.getElementById('result-area');
   if (!area) return;
-
   const rows = Object.entries(report).map(([k, v]) => `
     <div class="report-row">
       <span class="report-key">${k}</span>
       <span class="report-val">${v}</span>
     </div>`).join('');
-
   area.innerHTML = `
     <div class="text-result-card">
       <div class="text-result-header">
@@ -343,7 +435,7 @@ function showReport(report) {
       </div>
       <div class="report-table">${rows}</div>
     </div>`;
-  lucide.createIcons();
+  if (window.lucide) lucide.createIcons();
 }
 
 function copyTextResult(btn) {
@@ -351,12 +443,10 @@ function copyTextResult(btn) {
   if (!ta) return;
   navigator.clipboard.writeText(ta.value).then(() => {
     btn.innerHTML = '<i data-lucide="check"></i> Copied!';
-    lucide.createIcons();
-    setTimeout(() => { btn.innerHTML = '<i data-lucide="copy"></i> Copy'; lucide.createIcons(); }, 2000);
+    if (window.lucide) lucide.createIcons();
+    setTimeout(() => { btn.innerHTML = '<i data-lucide="copy"></i> Copy'; if (window.lucide) lucide.createIcons(); }, 2000);
   });
 }
-
-// ── MODAL ──────────────────────────────────────────────────────────────────
 
 function showComingSoon(toolName) {
   const modal = document.getElementById('coming-soon-modal');
@@ -366,14 +456,6 @@ function showComingSoon(toolName) {
   modal.classList.remove('hidden');
   document.body.style.overflow = 'hidden';
 }
-
-function closeComingSoonModal() {
-  const modal = document.getElementById('coming-soon-modal');
-  if (modal) modal.classList.add('hidden');
-  document.body.style.overflow = '';
-}
-
-// ── UTILITIES ──────────────────────────────────────────────────────────────
 
 function formatBytes(bytes) {
   if (bytes < 1024) return `${bytes} B`;
@@ -392,8 +474,8 @@ function renderSeoContent(tool) {
   const catDesc = {
     'Organize PDFs':       'organize, rearrange, and manage PDF documents',
     'Compress & Optimize': 'compress and reduce PDF file size without losing quality',
-    'Convert from PDF':    'convert PDF files to other popular formats',
-    'Convert to PDF':      'convert documents and images into PDF format',
+    'Convert From PDF':    'convert PDF files to other popular formats',
+    'Convert To PDF':      'convert documents and images into PDF format',
     'Edit & Annotate':     'edit, annotate, and modify your PDF files',
     'Security':            'protect and secure your PDF documents',
     'Advanced Tools':      'perform advanced AI-powered PDF operations',
@@ -402,50 +484,23 @@ function renderSeoContent(tool) {
   const kw = catDesc[tool.category] || 'work with PDF and document files';
   const isImage = tool.group === 'image';
   const fileType = isImage ? 'image' : 'PDF';
-
   return `
     <div class="seo-content">
       <h2>${tool.name} Online — Free, Fast &amp; Secure</h2>
-      <p>
-        <strong>fukpdf.com's ${tool.name}</strong> lets you ${tool.description.charAt(0).toLowerCase() + tool.description.slice(1)} — entirely for free, directly in your browser.
-        There is no software to download, no account to create, and no hidden fees. Just upload your ${fileType} file, configure the settings if needed, and click Process File.
-        Your result will be ready within seconds and will download automatically.
-      </p>
-      <p>
-        We designed this tool to be as easy as possible: drag and drop your file onto the upload area, or click to browse.
-        Files up to 10 MB are supported. Once processing is complete, the file is deleted from our servers automatically — usually within 8 seconds.
-        We never store, read, share, or sell your files or their contents.
-      </p>
-      <h3>How to Use ${tool.name} on fukpdf.com</h3>
+      <p><strong>ILovePDF's ${tool.name}</strong> lets you ${tool.description.charAt(0).toLowerCase() + tool.description.slice(1)} — entirely for free, directly in your browser. No software to download, no account to create, no hidden fees.</p>
+      <p>Drag and drop your ${fileType} onto the upload area or click to browse. Files up to 100&nbsp;MB are supported. Once processing is complete, the file is deleted from our servers automatically — usually within seconds.</p>
+      <h3>How to Use ${tool.name} on ILovePDF</h3>
       <ol class="seo-steps">
-        <li><strong>Upload your file</strong> — drag &amp; drop or click the upload area to select your ${fileType}.</li>
-        <li><strong>Set options</strong> — configure any tool-specific settings shown on this page.</li>
-        <li><strong>Process</strong> — click the "Process File" button and wait a few seconds.</li>
-        <li><strong>Download</strong> — your result file (named <code>fukpdf-${tool.id}.${isImage ? 'png' : 'pdf'}</code>) downloads automatically.</li>
+        <li><strong>Upload your file</strong> — drag &amp; drop or click the upload area.</li>
+        <li><strong>Reorder &amp; rotate</strong> — drag thumbnails to reorder, click rotate to adjust orientation.</li>
+        <li><strong>Set options</strong> — configure any tool-specific settings.</li>
+        <li><strong>Process &amp; download</strong> — your result downloads as <code>ILovePDF-[your-file-name]</code>.</li>
       </ol>
-      <h3>Why Choose fukpdf.com?</h3>
-      <p>
-        fukpdf.com was built for people who need to ${kw} without installing software or paying for a subscription.
-        With ${TOOLS.length} tools covering everything from merging PDFs and compressing files to AI-powered summarization and background removal,
-        it's the only PDF toolkit you'll ever need. All tools are browser-based, work on any device (Windows, Mac, Linux, iOS, Android),
-        and are completely free to use — no limits on the number of files you process.
-      </p>
-      <p>
-        Popular searches that bring users to this tool: <em>${tool.name.toLowerCase()} online free</em>,
-        <em>${tool.name.toLowerCase()} without software</em>, <em>free ${tool.name.toLowerCase()} tool</em>,
-        and <em>best ${tool.name.toLowerCase()} 2024</em>.
-        Powered by <strong>fukpdf.com</strong>.
-      </p>
-    </div>
-  `;
+      <h3>Why Choose ILovePDF?</h3>
+      <p>ILovePDF was built for people who need to ${kw} without installing software or paying for a subscription. With ${TOOLS.length} tools covering merging, compressing, AI summarisation and background removal, it's the only PDF toolkit you'll ever need.</p>
+    </div>`;
 }
 
 function escapeHtml(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
-document.addEventListener('DOMContentLoded' , () => { const btn = document.querySelector('.navbar-toggler') || document.querySelector('.menu-icon') || document.querySelector('header button'); const sb = document.querySelector('.sidebar'); if(btn && sb) {btn.oneclick = (e) => { e.preventDefault(); sb.classlist.toggle('active'); }; } });
-function toggleSidebar(){document.querySelector(".sidebar").classList.toggle("active")}

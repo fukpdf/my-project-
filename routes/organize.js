@@ -5,7 +5,7 @@ import fs from 'fs';
 import { cleanupFiles, sendPdf } from '../utils/cleanup.js';
 
 const router = express.Router();
-const upload = multer({ dest: 'uploads/', limits: { fileSize: 10 * 1024 * 1024 } });
+const upload = multer({ dest: 'uploads/', limits: { fileSize: 100 * 1024 * 1024 } });
 
 router.post('/merge', upload.array('pdfs'), async (req, res) => {
   try {

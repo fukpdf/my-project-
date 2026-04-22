@@ -155,4 +155,3 @@ function hexToRgba(hex, alpha) {
   const b = parseInt(hex.slice(5,7), 16);
   return `rgba(${r},${g},${b},${alpha})`;
 }
-function toggleSidebar(){document.querySelector(".sidebar").classList.toggle("active")}

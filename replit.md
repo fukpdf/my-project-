@@ -1,6 +1,6 @@
-# fukpdf.com — Free Online PDF & Image Tools
+# ILovePDF — Free Online PDF & Image Tools
 
-A production-ready SaaS PDF + Image processing platform with 33 tools, branded as fukpdf.com.
+A production-ready PDF + image processing platform with 33 tools, branded as **ILovePDF** (red theme #E5322E).
 
 ## Architecture
 
@@ -9,90 +9,57 @@ A production-ready SaaS PDF + Image processing platform with 33 tools, branded a
 ├── server.js                    — Express entry (port 5000, rate limiting, security headers)
 ├── utils/cleanup.js             — File cleanup + shared response helpers
 ├── controllers/
-│   ├── pdfController.js         — PDF controller
-│   └── imageController.js       — Image tool handlers (fukpdf-* filenames)
-├── routes/
-│   ├── organize.js              — Merge, Split, Rotate, Crop, Organize (10MB limit)
+│   ├── pdfController.js
+│   └── imageController.js
+├── routes/                      — All routes accept files up to 100 MB
+│   ├── organize.js              — Merge, Split, Rotate, Crop, Organize PDF
 │   ├── edit.js                  — Compress, Edit, Watermark, Sign, Page Numbers, Redact
 │   ├── convert.js               — JPG↔PDF, Scan, PDF↔Word/PPT/Excel/HTML
 │   ├── security.js              — Protect / Unlock PDF
 │   ├── advanced.js              — Repair, OCR, Compare, AI Summarizer, Translate, Workflow
 │   └── image.js                 — Background Remover, Crop, Resize, Filters
-├── public/
-│   ├── index.html               — Dashboard: fukpdf.com branding, SEO, schema, cookie consent, ads, footer
-│   ├── tool.html                — Tool page: per-tool meta, SEO content, ads, footer, cookie consent
-│   ├── blog.html                — Blog index (3 articles)
-│   ├── privacy.html             — Privacy Policy
-│   ├── terms.html               — Terms & Conditions
-│   ├── disclaimer.html          — Disclaimer
-│   ├── robots.txt               — SEO: allow all, disallow /uploads/ and /api/
-│   ├── sitemap.xml              — All 33 tool URLs + legal + blog pages
-│   ├── blog/
-│   │   ├── merge-pdf-guide.html       — 1200+ word guide: How to Merge PDF Online
-│   │   ├── compress-pdf-guide.html    — 1200+ word guide: Compress PDF Without Quality Loss
-│   │   └── best-pdf-tools.html        — 1400+ word review: Best Free PDF Tools 2024
-│   ├── css/styles.css           — Full design system + footer, cookie, ad, SEO, blog, legal styles
-│   └── js/
-│       ├── tools-config.js      — All 33 tool definitions
-│       ├── sidebar.js           — Sidebar: fukpdf.com logo, filter nav
-│       ├── dashboard.js         — Card rendering, filter support, coming-soon modal
-│       └── tool-page.js         — Tool page: per-tool meta injection, renderSeoContent(), fukpdf- downloads
-└── uploads/                     — Temp file storage (auto-created, auto-cleaned)
+└── public/
+    ├── index.html               — Dashboard (mega-menu header, 5-col footer, signup modal, processing overlay)
+    ├── tool.html                — Tool page (same persistent layout)
+    ├── blog.html, blog/         — Blog
+    ├── privacy.html, terms.html, disclaimer.html
+    ├── robots.txt, sitemap.xml
+    ├── css/styles.css           — Full design system (red theme, mega-menu, footer, processing UI)
+    └── js/
+        ├── tools-config.js      — All tool definitions + 8 categories (matches header hierarchy)
+        ├── sidebar.js           — Sidebar nav with category groupings
+        ├── mega-menu.js         — Topbar mega-menu (8 categories with hover/click dropdowns)
+        ├── dashboard.js         — Card rendering for the home page
+        ├── tool-page.js         — Per-tool UI, drag-drop reorder, rotation, branded download, signup check
+        └── shared.js            — Modals, sidebar toggle, cookies, signup-required, processing overlay
 ```
+
+## Brand & UI
+
+- **Brand**: ILovePDF
+- **Primary color**: `#E5322E` (red)
+- **Download filenames**: `ILovePDF-[Original-Name].<ext>`
+- **Persistent layout**: header (with mega-menu) and 5-column footer present on every page
+- **Mega-menu hierarchy** (matches sidebar):
+  - Organize PDFs · Compress & Optimize · Convert From PDF · Convert To PDF · Edit & Annotate · Security · Advanced Tools · Image Tools
+
+## Editor Features
+
+- File thumbnails with drag-and-drop reordering (mouse + touch)
+- Per-file rotation control (`rotations[]` sent in form data)
+- Dedicated full-screen **processing overlay** with animated spinner before download
+- 100 MB client-side size guard → opens **Sign Up Required** modal
+- 100 MB backend limit (multer) returns `413` → also triggers Sign Up modal
 
 ## Tech Stack
 
-- **Backend**: Node.js + Express 5 (ES Modules)
-- **File uploads**: multer (10 MB limit on all routes)
-- **Rate limiting**: express-rate-limit (80 req / 15 min per IP on /api)
-- **Security headers**: X-Content-Type-Options, X-Frame-Options, Referrer-Policy
-- **PDF processing**: pdf-lib, mammoth, pptx, xlsx, JSZip
+- **Backend**: Node.js + Express 5 (ES Modules), multer (100 MB), express-rate-limit, compression
+- **PDF processing**: pdf-lib, mammoth, pptxgenjs, exceljs, pdf-parse, JSZip
 - **Image processing**: sharp
-- **Frontend**: Pure HTML/CSS/JS (no frameworks), Lucide icons, Inter font
-
-## Branding
-
-- Brand name: **fukpdf.com**
-- All download filenames: `fukpdf-[tool-id].[ext]` (e.g., fukpdf-merge.pdf, fukpdf-compress.pdf)
-- Sidebar logo: "fukpdf.com / 33 Free PDF & Image Tools"
-
-## SEO Features
-
-- Per-tool dynamic meta (title, description, keywords) via tool-page.js
-- 500–700 word SEO content block on every tool page
-- Schema.org JSON-LD: WebSite + SoftwareApplication on homepage
-- Schema.org Article on all blog posts
-- sitemap.xml covering all 33 tool pages + legal + blog
-- robots.txt with sitemap reference
-
-## Legal Pages
-
-- `/privacy.html` — Full Privacy Policy (10 sections)
-- `/terms.html` — Full Terms & Conditions (12 sections)
-- `/disclaimer.html` — Full Disclaimer (8 sections)
-
-## Blog
-
-- `/blog.html` — Index with 3 article cards
-- `/blog/merge-pdf-guide.html` — How to Merge PDF Files Online (1200+ words)
-- `/blog/compress-pdf-guide.html` — How to Compress PDF Without Losing Quality (1300+ words)
-- `/blog/best-pdf-tools.html` — Best Free Online PDF Tools in 2024 (1500+ words)
-
-## Cookie Consent
-
-- Banner on every page using `localStorage.fukpdf_cookies` flag
-- Dismiss persists across sessions
-- Links to Privacy Policy
-
-## AdSense Placeholders
-
-- Leaderboard slot: below topbar on index.html and tool.html
-- Rectangle slot: above SEO content on tool pages
+- **Frontend**: Pure HTML/CSS/JS (no frameworks), Lucide icons, Inter font, fully responsive
 
 ## Running
 
 ```bash
-node server.js
+node server.js   # listens on port 5000
 ```
-
-Server runs on port 5000.

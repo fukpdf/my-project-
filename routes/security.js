@@ -8,7 +8,7 @@ import { cleanupFiles, sendPdf } from '../utils/cleanup.js';
 
 const execAsync = promisify(exec);
 const router = express.Router();
-const upload = multer({ dest: 'uploads/', limits: { fileSize: 10 * 1024 * 1024 } });
+const upload = multer({ dest: 'uploads/', limits: { fileSize: 100 * 1024 * 1024 } });
 
 router.post('/protect', upload.single('pdf'), async (req, res) => {
   try {

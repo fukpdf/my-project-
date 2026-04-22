@@ -17,7 +17,7 @@ import { extractPdfText, wrapText, textToPdf } from '../utils/pdfText.js';
 const require = createRequire(import.meta.url);
 const execAsync = promisify(exec);
 const router = express.Router();
-const upload = multer({ dest: 'uploads/', limits: { fileSize: 10 * 1024 * 1024 } });
+const upload = multer({ dest: 'uploads/', limits: { fileSize: 100 * 1024 * 1024 } });
 
 // ── HELPERS ────────────────────────────────────────────────────────────────
 

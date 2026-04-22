@@ -24,8 +24,8 @@ function buildSidebar(activeToolId) {
         </svg>
       </div>
       <div class="sidebar-logo-text">
-        fukpdf.com
-        <span>33 Free PDF &amp; Image Tools</span>
+        ILovePDF
+        <span>Free PDF &amp; Image Tools</span>
       </div>
     </div>
 
@@ -93,4 +93,3 @@ function buildSidebar(activeToolId) {
     });
   }
 }
-function toggleSidebar(){document.querySelector(".sidebar").classList.toggle("active")}

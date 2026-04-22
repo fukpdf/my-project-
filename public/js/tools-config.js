@@ -1,25 +1,25 @@
 const CATEGORIES = [
-  { name: 'Organize PDFs',       color: '#3b82f6', icon: 'layers',            group: 'pdf'   },
-  { name: 'Compress & Optimize', color: '#10b981', icon: 'zap',               group: 'pdf'   },
-  { name: 'Convert from PDF',    color: '#f59e0b', icon: 'arrow-right-circle', group: 'pdf'   },
-  { name: 'Convert to PDF',      color: '#8b5cf6', icon: 'arrow-left-circle',  group: 'pdf'   },
-  { name: 'Edit & Annotate',     color: '#ec4899', icon: 'edit-3',            group: 'pdf'   },
-  { name: 'Security',            color: '#ef4444', icon: 'shield',            group: 'pdf'   },
-  { name: 'Advanced Tools',      color: '#6366f1', icon: 'cpu',               group: 'pdf'   },
-  { name: 'Image Tools',         color: '#a855f7', icon: 'image',             group: 'image' },
+  { name: 'Organize PDFs',       color: '#E5322E', icon: 'layers',             group: 'pdf'   },
+  { name: 'Compress & Optimize', color: '#10b981', icon: 'zap',                group: 'pdf'   },
+  { name: 'Convert From PDF',    color: '#f59e0b', icon: 'arrow-right-circle', group: 'pdf'   },
+  { name: 'Convert To PDF',      color: '#8b5cf6', icon: 'arrow-left-circle',  group: 'pdf'   },
+  { name: 'Edit & Annotate',     color: '#ec4899', icon: 'edit-3',             group: 'pdf'   },
+  { name: 'Security',            color: '#ef4444', icon: 'shield',             group: 'pdf'   },
+  { name: 'Advanced Tools',      color: '#6366f1', icon: 'cpu',                group: 'pdf'   },
+  { name: 'Image Tools',         color: '#a855f7', icon: 'image',              group: 'image' },
 ];
 
 const TOOLS = [
-  // ── ORGANIZE ──────────────────────────────────────────────────────────────
+  // ── ORGANIZE PDFs ─────────────────────────────────────────────────────────
   {
-    id: 'merge', name: 'Merge PDF', icon: 'layers',
+    id: 'merge', name: 'Merge', icon: 'layers',
     description: 'Combine multiple PDF files into a single document',
     category: 'Organize PDFs', group: 'pdf', badge: 'PDF',
     apiEndpoint: '/api/merge', acceptedFiles: '.pdf',
     multipleFiles: true, working: true, options: []
   },
   {
-    id: 'split', name: 'Split PDF', icon: 'scissors',
+    id: 'split', name: 'Split', icon: 'scissors',
     description: 'Extract specific pages or ranges from a PDF',
     category: 'Organize PDFs', group: 'pdf', badge: 'PDF',
     apiEndpoint: '/api/split', acceptedFiles: '.pdf',
@@ -29,7 +29,7 @@ const TOOLS = [
     ]
   },
   {
-    id: 'rotate', name: 'Rotate PDF', icon: 'rotate-cw',
+    id: 'rotate', name: 'Rotate', icon: 'rotate-cw',
     description: 'Rotate pages to the correct orientation',
     category: 'Organize PDFs', group: 'pdf', badge: 'PDF',
     apiEndpoint: '/api/rotate', acceptedFiles: '.pdf',
@@ -44,7 +44,7 @@ const TOOLS = [
     ]
   },
   {
-    id: 'crop', name: 'Crop PDF', icon: 'crop',
+    id: 'crop', name: 'Crop', icon: 'crop',
     description: 'Trim the margins of PDF pages',
     category: 'Organize PDFs', group: 'pdf', badge: 'PDF',
     apiEndpoint: '/api/crop', acceptedFiles: '.pdf',
@@ -66,7 +66,8 @@ const TOOLS = [
       { id: 'pageOrder', label: 'New Page Order (1-indexed, comma-separated)', type: 'text', placeholder: 'e.g. 3,1,2' }
     ]
   },
-  // ── COMPRESS ──────────────────────────────────────────────────────────────
+
+  // ── COMPRESS & OPTIMIZE ───────────────────────────────────────────────────
   {
     id: 'compress', name: 'Compress PDF', icon: 'archive',
     description: 'Reduce PDF file size while preserving quality',
@@ -74,32 +75,33 @@ const TOOLS = [
     apiEndpoint: '/api/compress', acceptedFiles: '.pdf',
     multipleFiles: false, working: true, options: []
   },
+
   // ── CONVERT FROM PDF ──────────────────────────────────────────────────────
   {
     id: 'pdf-to-word', name: 'PDF to Word', icon: 'file-text',
     description: 'Convert PDF to editable Word documents',
-    category: 'Convert from PDF', group: 'pdf', badge: 'PDF',
+    category: 'Convert From PDF', group: 'pdf', badge: 'PDF',
     apiEndpoint: '/api/pdf-to-word', acceptedFiles: '.pdf',
     multipleFiles: false, working: true, options: []
   },
   {
     id: 'pdf-to-powerpoint', name: 'PDF to PowerPoint', icon: 'layout',
     description: 'Transform PDFs into editable presentations',
-    category: 'Convert from PDF', group: 'pdf', badge: 'PDF',
+    category: 'Convert From PDF', group: 'pdf', badge: 'PDF',
     apiEndpoint: '/api/pdf-to-powerpoint', acceptedFiles: '.pdf',
     multipleFiles: false, working: true, options: []
   },
   {
     id: 'pdf-to-excel', name: 'PDF to Excel', icon: 'table',
     description: 'Extract tables from PDFs into spreadsheets',
-    category: 'Convert from PDF', group: 'pdf', badge: 'PDF',
+    category: 'Convert From PDF', group: 'pdf', badge: 'PDF',
     apiEndpoint: '/api/pdf-to-excel', acceptedFiles: '.pdf',
     multipleFiles: false, working: true, options: []
   },
   {
     id: 'pdf-to-jpg', name: 'PDF to JPG', icon: 'image',
     description: 'Convert PDF pages into high-quality JPG images',
-    category: 'Convert from PDF', group: 'pdf', badge: 'PDF',
+    category: 'Convert From PDF', group: 'pdf', badge: 'PDF',
     apiEndpoint: '/api/pdf-to-jpg', acceptedFiles: '.pdf',
     multipleFiles: false, working: true,
     options: [
@@ -109,42 +111,44 @@ const TOOLS = [
       ]}
     ]
   },
+
   // ── CONVERT TO PDF ────────────────────────────────────────────────────────
   {
     id: 'word-to-pdf', name: 'Word to PDF', icon: 'file-up',
     description: 'Convert Word documents to PDF format',
-    category: 'Convert to PDF', group: 'pdf', badge: 'PDF',
+    category: 'Convert To PDF', group: 'pdf', badge: 'PDF',
     apiEndpoint: '/api/word-to-pdf', acceptedFiles: '.doc,.docx',
     multipleFiles: false, working: true, options: []
   },
   {
     id: 'powerpoint-to-pdf', name: 'PowerPoint to PDF', icon: 'monitor',
     description: 'Convert presentations to PDF format',
-    category: 'Convert to PDF', group: 'pdf', badge: 'PDF',
+    category: 'Convert To PDF', group: 'pdf', badge: 'PDF',
     apiEndpoint: '/api/powerpoint-to-pdf', acceptedFiles: '.ppt,.pptx',
     multipleFiles: false, working: true, options: []
   },
   {
     id: 'excel-to-pdf', name: 'Excel to PDF', icon: 'grid',
     description: 'Convert Excel spreadsheets to PDF',
-    category: 'Convert to PDF', group: 'pdf', badge: 'PDF',
+    category: 'Convert To PDF', group: 'pdf', badge: 'PDF',
     apiEndpoint: '/api/excel-to-pdf', acceptedFiles: '.xls,.xlsx',
     multipleFiles: false, working: true, options: []
   },
   {
     id: 'jpg-to-pdf', name: 'JPG to PDF', icon: 'file-image',
     description: 'Convert images (JPG, PNG) into a PDF document',
-    category: 'Convert to PDF', group: 'pdf', badge: 'PDF',
+    category: 'Convert To PDF', group: 'pdf', badge: 'PDF',
     apiEndpoint: '/api/jpg-to-pdf', acceptedFiles: '.jpg,.jpeg,.png',
     multipleFiles: true, working: true, options: []
   },
   {
     id: 'html-to-pdf', name: 'HTML to PDF', icon: 'globe',
     description: 'Convert HTML files into PDF documents',
-    category: 'Convert to PDF', group: 'pdf', badge: 'PDF',
+    category: 'Convert To PDF', group: 'pdf', badge: 'PDF',
     apiEndpoint: '/api/html-to-pdf', acceptedFiles: '.html,.htm',
     multipleFiles: false, working: true, options: []
   },
+
   // ── EDIT & ANNOTATE ───────────────────────────────────────────────────────
   {
     id: 'edit', name: 'Edit PDF', icon: 'edit-3',
@@ -161,7 +165,7 @@ const TOOLS = [
     ]
   },
   {
-    id: 'watermark', name: 'Watermark PDF', icon: 'droplets',
+    id: 'watermark', name: 'Watermark', icon: 'droplets',
     description: 'Add a text watermark to protect your document',
     category: 'Edit & Annotate', group: 'pdf', badge: 'PDF',
     apiEndpoint: '/api/watermark', acceptedFiles: '.pdf',
@@ -221,6 +225,7 @@ const TOOLS = [
       { id: 'pages',  label: 'Pages (number or "all")', type: 'text', placeholder: '1' }
     ]
   },
+
   // ── SECURITY ──────────────────────────────────────────────────────────────
   {
     id: 'protect', name: 'Protect PDF', icon: 'lock',
@@ -242,30 +247,31 @@ const TOOLS = [
       { id: 'password', label: 'Current Password (if known)', type: 'text', placeholder: 'Leave blank if unsure' }
     ]
   },
-  // ── ADVANCED ──────────────────────────────────────────────────────────────
+
+  // ── ADVANCED TOOLS ────────────────────────────────────────────────────────
   {
-    id: 'repair', name: 'Repair PDF', icon: 'wrench',
+    id: 'repair', name: 'Repair', icon: 'wrench',
     description: 'Fix corrupted or damaged PDF files',
     category: 'Advanced Tools', group: 'pdf', badge: 'Utility',
     apiEndpoint: '/api/repair', acceptedFiles: '.pdf',
     multipleFiles: false, working: true, options: []
   },
   {
-    id: 'scan-to-pdf', name: 'Scan to PDF', icon: 'scan-line',
+    id: 'scan-to-pdf', name: 'Scan', icon: 'scan-line',
     description: 'Convert scanned images into a PDF document',
     category: 'Advanced Tools', group: 'pdf', badge: 'PDF',
     apiEndpoint: '/api/scan-to-pdf', acceptedFiles: '.jpg,.jpeg,.png',
     multipleFiles: true, working: true, options: []
   },
   {
-    id: 'ocr', name: 'OCR PDF', icon: 'type',
+    id: 'ocr', name: 'OCR', icon: 'type',
     description: 'Extract and copy text from your PDF document',
     category: 'Advanced Tools', group: 'pdf', badge: 'AI',
     apiEndpoint: '/api/ocr', acceptedFiles: '.pdf',
     multipleFiles: false, working: true, options: []
   },
   {
-    id: 'compare', name: 'Compare PDF', icon: 'columns',
+    id: 'compare', name: 'Compare', icon: 'columns',
     description: 'Find differences between two PDF files',
     category: 'Advanced Tools', group: 'pdf', badge: 'Utility',
     apiEndpoint: '/api/compare', acceptedFiles: '.pdf',
@@ -282,7 +288,7 @@ const TOOLS = [
     ]
   },
   {
-    id: 'translate', name: 'Translate PDF', icon: 'languages',
+    id: 'translate', name: 'Translate', icon: 'languages',
     description: 'Translate PDF documents into any language',
     category: 'Advanced Tools', group: 'pdf', badge: 'AI',
     apiEndpoint: '/api/translate', acceptedFiles: '.pdf',
@@ -343,6 +349,7 @@ const TOOLS = [
       { id: 'step3_value', label: 'Step 3 — Text Value (optional)', type: 'text', placeholder: '' }
     ]
   },
+
   // ── IMAGE TOOLS ───────────────────────────────────────────────────────────
   {
     id: 'background-remover', name: 'Background Remover', icon: 'image-minus',
@@ -404,4 +411,3 @@ const TOOLS = [
     ]
   },
 ];
-function toggleSidebar(){document.querySelector(".sidebar").classList.toggle("active")}

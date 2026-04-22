@@ -41,7 +41,7 @@ const apiLimiter = rateLimit({
   message: { error: 'Too many requests from this IP. Please wait 15 minutes and try again.' }
 });
 
-app.use(express.json({ limit: '1mb' }));
+app.use(express.json({ limit: '2mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api', apiLimiter);
@@ -54,7 +54,7 @@ app.use('/api', imageRouter);
 
 app.use((err, req, res, next) => {
   if (err.code === 'LIMIT_FILE_SIZE') {
-    return res.status(413).json({ error: 'File too large. Maximum allowed size is 10 MB.' });
+    return res.status(413).json({ error: 'File too large. Maximum allowed size is 100 MB. Sign up required for larger files.' });
   }
   if (err.type === 'entity.too.large') {
     return res.status(413).json({ error: 'Request too large.' });
