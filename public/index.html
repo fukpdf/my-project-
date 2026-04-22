@@ -116,7 +116,7 @@
     <main class="content">
 
       <!-- HERO -->
-      <section class="hero">
+      <section class="hero" id="hero">
         <span class="hero-eyebrow"><i data-lucide="sparkles"></i> 33+ Free Tools</span>
         <h1>Every PDF &amp; Image Tool You'll Ever Need</h1>
         <p>Merge, split, compress, convert, edit, sign and protect — plus AI summarizer, OCR and a full image suite. All free, all online, no installs required.</p>
@@ -125,6 +125,16 @@
           <a href="/tool.html?id=merge" class="hero-btn outline"><i data-lucide="layers"></i> Try Merge PDF</a>
         </div>
       </section>
+
+      <!-- Mobile-only "Open Calculator" toggle (shown <=1024px) -->
+      <button class="calc-toggle" id="calc-toggle" type="button" aria-expanded="false" aria-controls="calc-mobile-slot">
+        <span class="ct-left">
+          <span class="ct-ico"><i data-lucide="calculator"></i></span>
+          <span>Open Calculator <span style="display:block;font-size:.75rem;font-weight:500;color:var(--text-mute);margin-top:1px;">Numbers to Words converter</span></span>
+        </span>
+        <i data-lucide="chevron-down" class="chev"></i>
+      </button>
+      <div id="calc-mobile-slot"></div>
 
       <!-- TOOLS GRID -->
       <div>

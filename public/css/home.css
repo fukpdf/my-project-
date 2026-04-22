@@ -28,7 +28,7 @@
   --radius-lg:     20px;
   --header-h:      68px;
 
-  --rail-w:        288px;
+  --rail-w:        280px;
 }
 
 *{box-sizing:border-box}
@@ -174,8 +174,26 @@ button{font-family:inherit;cursor:pointer;border:0;background:none}
 }
 .rail-sticky{
   position:sticky;
-  top:calc(var(--header-h) + 16px);
+  top:80px;
 }
+
+/* Mobile-only "Open Calculator" toggle */
+.calc-toggle{
+  display:none;
+  width:100%;align-items:center;justify-content:space-between;gap:10px;
+  padding:14px 16px;border-radius:14px;
+  background:#fff;border:1px solid var(--border);
+  box-shadow:var(--shadow);
+  font-weight:700;font-size:.95rem;color:var(--text);
+}
+.calc-toggle .ct-left{display:flex;align-items:center;gap:10px}
+.calc-toggle .ct-ico{
+  width:36px;height:36px;border-radius:10px;
+  background:var(--grad);color:#fff;display:grid;place-items:center;
+}
+.calc-toggle svg{width:18px;height:18px}
+.calc-toggle .chev{transition:.2s transform;color:var(--text-mute)}
+.calc-toggle.open .chev{transform:rotate(180deg)}
 
 /* Calculator card */
 .calc-card{
@@ -332,7 +350,7 @@ button{font-family:inherit;cursor:pointer;border:0;background:none}
 
 .tools-grid{
   display:grid;
-  grid-template-columns:repeat(5,minmax(0,1fr));
+  grid-template-columns:repeat(4,minmax(0,1fr));
   gap:18px;
 }
 
@@ -408,21 +426,33 @@ button{font-family:inherit;cursor:pointer;border:0;background:none}
    RESPONSIVE
    ============================================================ */
 @media (max-width: 1180px){
-  .tools-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .tools-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
 
 @media (max-width: 1024px){
-  /* Tablet */
+  /* Tablet → single column, mobile-style behavior */
   .page{
     grid-template-columns:1fr;
   }
-  .rail{width:100%;flex-direction:column}
-  .rail-sticky{position:static}
-  .calc-card{max-width:520px;margin:0 auto;width:100%}
-  .ads-wrap{
-    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;
+  .rail{
+    width:100%;flex-direction:column;
+    order:2; /* hero stays first */
   }
-  .ads-wrap .ad{height:160px}
+  .content{order:1}
+  .rail-sticky{position:static}
+
+  /* Hide the desktop calculator card; show the toggle instead */
+  .rail-sticky .calc-card{display:none}
+  .calc-toggle{display:flex}
+  .calc-card.mobile-open{
+    display:block;width:100%;max-width:none;margin-top:12px;
+    animation:dropIn .22s ease;
+  }
+  @keyframes dropIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+  /* Hide ads on mobile/tablet single-column view */
+  .rail .ad{display:none}
+
   .tools-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 
   .nav{display:none}
@@ -439,7 +469,6 @@ button{font-family:inherit;cursor:pointer;border:0;background:none}
   .page{padding:16px;gap:18px}
   .header-inner{padding:0 16px;gap:12px}
   .header-cta .btn-primary{padding:9px 12px}
-  .ads-wrap{grid-template-columns:1fr}
   .tools-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
   .tool{padding:14px 12px}
   .tool-ico{width:38px;height:38px}
