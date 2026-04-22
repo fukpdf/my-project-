@@ -170,6 +170,12 @@ function applyUser(user) {
   $('logout-btn').classList.remove('hidden');
 }
 
+// Auto-open auth modal if URL is #auth=login or #auth=signup
+(function checkHashAuth(){
+  const m = /auth=(login|signup)/.exec(location.hash || '');
+  if (m) setTimeout(() => openAuth(m[1]), 200);
+})();
+
 (async function loadMe() {
   try {
     const res = await fetch('/api/auth/me', { credentials: 'include' });
