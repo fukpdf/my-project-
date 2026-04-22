@@ -55,7 +55,76 @@
           </div>
         </div>
 
-        <div id="dashboard-content"></div>
+        <!-- Mobile-only: Advanced Tools toggle that reveals the N2W panel -->
+        <button class="adv-toggle" id="adv-toggle" type="button" aria-expanded="false" aria-controls="n2w-side">
+          <span class="adv-toggle-icon"><i data-lucide="hash"></i></span>
+          <span class="adv-toggle-body">
+            <span class="adv-toggle-title">Advanced Tools</span>
+            <span class="adv-toggle-sub">Numbers to Words Converter</span>
+          </span>
+          <i data-lucide="chevron-down" class="adv-toggle-chev"></i>
+        </button>
+
+        <div class="home-shell">
+          <!-- LEFT: sticky Numbers-to-Words panel -->
+          <aside class="n2w-side" id="n2w-side" aria-label="Numbers to Words Converter">
+            <div class="n2w-card">
+              <div class="n2w-head">
+                <span class="n2w-badge"><i data-lucide="hash"></i></span>
+                <div>
+                  <div class="n2w-title">Numbers to Words</div>
+                  <div class="n2w-sub">Convert numbers, currency &amp; checks</div>
+                </div>
+                <button class="n2w-close" id="n2w-close" type="button" aria-label="Close">
+                  <i data-lucide="x"></i>
+                </button>
+              </div>
+
+              <label class="n2w-label" for="n2w-num">Enter a number</label>
+              <textarea id="n2w-num" class="n2w-input" rows="2" placeholder="e.g. 1234567.89 or 1.23e25"></textarea>
+
+              <div class="n2w-modes">
+                <label><input type="radio" name="n2w-mode" value="words" checked> Words</label>
+                <label><input type="radio" name="n2w-mode" value="currency"> Currency</label>
+                <label><input type="radio" name="n2w-mode" value="check"> Check</label>
+              </div>
+
+              <div class="n2w-row">
+                <select id="n2w-currency" class="n2w-sel" aria-label="Currency">
+                  <option value="USD">USD — Dollars</option>
+                  <option value="EUR">EUR — Euros</option>
+                  <option value="GBP">GBP — Pounds</option>
+                  <option value="INR">INR — Rupees</option>
+                  <option value="JPY">JPY — Yen</option>
+                </select>
+                <select id="n2w-case" class="n2w-sel" aria-label="Letter case">
+                  <option value="lowercase">lowercase</option>
+                  <option value="UPPERCASE">UPPERCASE</option>
+                  <option value="Title Case">Title Case</option>
+                  <option value="Sentence Case">Sentence Case</option>
+                </select>
+              </div>
+
+              <button id="n2w-convert" class="n2w-btn">Convert</button>
+
+              <div id="n2w-out-wrap" class="n2w-out hidden">
+                <div class="n2w-out-head">
+                  <span>Result</span>
+                  <button id="n2w-copy" type="button">Copy</button>
+                </div>
+                <div id="n2w-out" class="n2w-out-body"></div>
+              </div>
+              <div id="n2w-err" class="n2w-err hidden"></div>
+
+              <a href="/n2w.html" class="n2w-full">Open full converter →</a>
+            </div>
+          </aside>
+
+          <!-- RIGHT: scrollable tools grid -->
+          <div class="tools-side">
+            <div id="dashboard-content"></div>
+          </div>
+        </div>
       </main>
 
       <footer class="site-footer">
@@ -172,5 +241,7 @@
   <script src="js/mega-menu.js"></script>
   <script src="js/dashboard.js"></script>
   <script src="js/shared.js"></script>
+  <script src="js/n2w-converter.js"></script>
+  <script src="js/n2w-side.js"></script>
 </body>
 </html>
