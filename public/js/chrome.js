@@ -10,12 +10,7 @@ window.TOOL_GROUPS = [
       { id:'rotate-pdf',   name:'Rotate PDF',   icon:'rotate-cw',    desc:'Fix page orientation' },
       { id:'crop-pdf',     name:'Crop PDF',     icon:'crop',         desc:'Trim margins from pages' },
       { id:'organize-pdf', name:'Organize PDF', icon:'list-ordered', desc:'Reorder, delete, duplicate pages' },
-    ]
-  },
-  {
-    key:'compress', title:'Compress',
-    items:[
-      { id:'compress-pdf', name:'Compress PDF', icon:'archive', desc:'Reduce PDF file size' },
+      { id:'compress-pdf', name:'Compress PDF', icon:'archive',      desc:'Reduce PDF file size' },
     ]
   },
   {
@@ -126,18 +121,29 @@ function renderDrawer(){
   if (!drawer) return;
   const panel = drawer.querySelector('.drawer-panel');
   if (!panel) return;
+  const sectionLinks = (key) => {
+    const g = groupBy(key); if (!g) return '';
+    return `
+      <div class="drawer-sec">
+        <div class="drawer-sec-title">${g.title}</div>
+        ${g.items.map(t => `<a href="${toolUrl(t.id)}">${t.name}</a>`).join('')}
+      </div>`;
+  };
   panel.innerHTML = `
     <button class="drawer-close" id="drawer-close" aria-label="Close menu"><i data-lucide="x"></i></button>
-    <a href="/merge-pdf">Merge PDF</a>
-    <a href="/split-pdf">Split PDF</a>
-    <a href="/#cat-organize">Organize</a>
-    <a href="/#cat-convert">Convert</a>
-    <a href="/#cat-edit">Edit</a>
-    <a href="/#cat-security">Security</a>
-    <a href="/#tools-root">All Tools</a>
-    <a href="#" class="btn btn-ghost" data-auth="login">Login</a>
-    <a href="#" class="btn btn-ghost" data-auth="signin">Sign In</a>
-    <a href="#" class="btn btn-primary" data-auth="signup">Sign Up</a>
+    <a class="drawer-top" href="/merge-pdf">Merge PDF</a>
+    <a class="drawer-top" href="/split-pdf">Split PDF</a>
+    ${sectionLinks('organize')}
+    ${sectionLinks('convert')}
+    ${sectionLinks('edit')}
+    ${sectionLinks('security')}
+    ${sectionLinks('advanced')}
+    ${sectionLinks('image')}
+    <div class="drawer-auth">
+      <a href="#" class="btn btn-ghost" data-auth="login">Login</a>
+      <a href="#" class="btn btn-ghost" data-auth="signin">Sign In</a>
+      <a href="#" class="btn btn-primary" data-auth="signup">Sign Up</a>
+    </div>
   `;
 }
 
@@ -145,13 +151,13 @@ function wireDrawer(){
   const drawer = document.getElementById('drawer');
   const open  = document.getElementById('hamburger');
   if (!drawer || !open) return;
-  const close = document.getElementById('drawer-close');
-  const back  = drawer.querySelector('.drawer-back');
   const set = v => drawer.classList.toggle('open', v);
   open.addEventListener('click', () => set(true));
-  close && close.addEventListener('click', () => set(false));
-  back && back.addEventListener('click', () => set(false));
-  drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', () => set(false)));
+  drawer.addEventListener('click', e => {
+    if (e.target.closest('.drawer-back') || e.target.closest('#drawer-close') || e.target.closest('a')) {
+      set(false);
+    }
+  });
 }
 
 /* Auth modal */

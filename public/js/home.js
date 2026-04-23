@@ -75,31 +75,84 @@ function wireCalc(){
   input.addEventListener('keydown', e => { if (e.key === 'Enter') run(); });
 }
 
-/* ----------------------- live currency converter ----------------------- */
+/* ----------------------- live currency converter (160+ currencies) ----------------------- */
 const FX_LIST = [
   ['USD','US Dollar'],['EUR','Euro'],['GBP','British Pound'],['JPY','Japanese Yen'],
   ['CNY','Chinese Yuan'],['INR','Indian Rupee'],['PKR','Pakistani Rupee'],
-  ['AED','UAE Dirham'],['SAR','Saudi Riyal'],['CAD','Canadian Dollar'],
-  ['AUD','Australian Dollar'],['CHF','Swiss Franc'],['TRY','Turkish Lira'],
-  ['RUB','Russian Ruble'],['SGD','Singapore Dollar'],['MYR','Malaysian Ringgit'],
-  ['THB','Thai Baht'],['IDR','Indonesian Rupiah'],['HKD','Hong Kong Dollar'],
-  ['KRW','South Korean Won'],['NZD','New Zealand Dollar'],['ZAR','South African Rand'],
-  ['BRL','Brazilian Real'],['MXN','Mexican Peso'],['SEK','Swedish Krona'],
-  ['NOK','Norwegian Krone'],['DKK','Danish Krone'],['PLN','Polish Zloty'],
-  ['EGP','Egyptian Pound'],['NGN','Nigerian Naira'],['BDT','Bangladeshi Taka'],
-  ['VND','Vietnamese Dong'],['PHP','Philippine Peso'],['ILS','Israeli Shekel'],
-  ['QAR','Qatari Riyal'],['KWD','Kuwaiti Dinar'],['BHD','Bahraini Dinar'],
-  ['OMR','Omani Rial'],['JOD','Jordanian Dinar'],['LKR','Sri Lankan Rupee'],
+  ['AED','UAE Dirham'],['SAR','Saudi Riyal'],['QAR','Qatari Riyal'],
+  ['KWD','Kuwaiti Dinar'],['BHD','Bahraini Dinar'],['OMR','Omani Rial'],
+  ['JOD','Jordanian Dinar'],['LBP','Lebanese Pound'],['SYP','Syrian Pound'],
+  ['IRR','Iranian Rial'],['IQD','Iraqi Dinar'],['YER','Yemeni Rial'],
+  ['AFN','Afghan Afghani'],['CAD','Canadian Dollar'],['AUD','Australian Dollar'],
+  ['NZD','New Zealand Dollar'],['CHF','Swiss Franc'],['SEK','Swedish Krona'],
+  ['NOK','Norwegian Krone'],['DKK','Danish Krone'],['ISK','Icelandic Krona'],
+  ['PLN','Polish Zloty'],['CZK','Czech Koruna'],['HUF','Hungarian Forint'],
+  ['RON','Romanian Leu'],['BGN','Bulgarian Lev'],['HRK','Croatian Kuna'],
+  ['RSD','Serbian Dinar'],['UAH','Ukrainian Hryvnia'],['BYN','Belarusian Ruble'],
+  ['RUB','Russian Ruble'],['TRY','Turkish Lira'],['ILS','Israeli Shekel'],
+  ['EGP','Egyptian Pound'],['MAD','Moroccan Dirham'],['DZD','Algerian Dinar'],
+  ['TND','Tunisian Dinar'],['LYD','Libyan Dinar'],['SDG','Sudanese Pound'],
+  ['ETB','Ethiopian Birr'],['KES','Kenyan Shilling'],['UGX','Ugandan Shilling'],
+  ['TZS','Tanzanian Shilling'],['NGN','Nigerian Naira'],['GHS','Ghanaian Cedi'],
+  ['ZAR','South African Rand'],['BWP','Botswana Pula'],['NAD','Namibian Dollar'],
+  ['MUR','Mauritian Rupee'],['XOF','CFA Franc BCEAO'],['XAF','CFA Franc BEAC'],
+  ['SGD','Singapore Dollar'],['MYR','Malaysian Ringgit'],['THB','Thai Baht'],
+  ['IDR','Indonesian Rupiah'],['VND','Vietnamese Dong'],['PHP','Philippine Peso'],
+  ['HKD','Hong Kong Dollar'],['TWD','Taiwan Dollar'],['KRW','South Korean Won'],
+  ['MNT','Mongolian Tugrik'],['KZT','Kazakhstani Tenge'],['UZS','Uzbekistani Som'],
+  ['AZN','Azerbaijani Manat'],['GEL','Georgian Lari'],['AMD','Armenian Dram'],
+  ['BDT','Bangladeshi Taka'],['LKR','Sri Lankan Rupee'],['NPR','Nepalese Rupee'],
+  ['MMK','Myanmar Kyat'],['KHR','Cambodian Riel'],['LAK','Lao Kip'],
+  ['BND','Brunei Dollar'],['MOP','Macanese Pataca'],['MVR','Maldivian Rufiyaa'],
+  ['BRL','Brazilian Real'],['MXN','Mexican Peso'],['ARS','Argentine Peso'],
+  ['CLP','Chilean Peso'],['COP','Colombian Peso'],['PEN','Peruvian Sol'],
+  ['UYU','Uruguayan Peso'],['VES','Venezuelan Bolivar'],['BOB','Bolivian Boliviano'],
+  ['PYG','Paraguayan Guarani'],['CRC','Costa Rican Colon'],['GTQ','Guatemalan Quetzal'],
+  ['HNL','Honduran Lempira'],['NIO','Nicaraguan Cordoba'],['PAB','Panamanian Balboa'],
+  ['DOP','Dominican Peso'],['CUP','Cuban Peso'],['JMD','Jamaican Dollar'],
+  ['TTD','Trinidad Dollar'],['BBD','Barbados Dollar'],['BSD','Bahamian Dollar'],
+  ['XCD','East Caribbean Dollar'],['HTG','Haitian Gourde'],
+  ['ALL','Albanian Lek'],['MKD','Macedonian Denar'],['BAM','Bosnia Mark'],
+  ['MDL','Moldovan Leu'],['ZMW','Zambian Kwacha'],['MWK','Malawian Kwacha'],
+  ['AOA','Angolan Kwanza'],['MZN','Mozambican Metical'],['MGA','Malagasy Ariary'],
+  ['SCR','Seychellois Rupee'],['RWF','Rwandan Franc'],['BIF','Burundian Franc'],
+  ['CDF','Congolese Franc'],['DJF','Djiboutian Franc'],['SOS','Somali Shilling'],
+  ['SLL','Sierra Leone Leone'],['LRD','Liberian Dollar'],['GMD','Gambian Dalasi'],
+  ['CVE','Cape Verde Escudo'],['STN','São Tomé Dobra'],['SZL','Swazi Lilangeni'],
+  ['LSL','Lesotho Loti'],['ZWL','Zimbabwean Dollar'],
+  ['FJD','Fijian Dollar'],['PGK','Papua New Guinea Kina'],['SBD','Solomon Islands Dollar'],
+  ['VUV','Vanuatu Vatu'],['WST','Samoan Tala'],['TOP','Tongan Paʻanga'],
+  ['XPF','CFP Franc'],['ANG','Netherlands Antillean Guilder'],['AWG','Aruban Florin'],
+  ['SRD','Suriname Dollar'],['GYD','Guyanese Dollar'],['BZD','Belize Dollar'],
+  ['KGS','Kyrgyzstani Som'],['TJS','Tajikistani Somoni'],['TMT','Turkmenistani Manat'],
+  ['BTN','Bhutanese Ngultrum'],
+  ['XAU','Gold (oz)'],['XAG','Silver (oz)'],['XDR','IMF SDR'],
+  ['BTC','Bitcoin'],['ETH','Ethereum'],['USDT','Tether'],['BNB','BNB'],['XRP','XRP'],
 ];
 
-/* Static fallback (rates per 1 USD, approx) — used only if every live API fails. */
+/* Static fallback (rates per 1 USD, approx). Used only if all APIs fail. */
 const FX_STATIC = {
-  usd:1, eur:0.92, gbp:0.79, jpy:155.0, cny:7.25, inr:83.4, pkr:278.0,
-  aed:3.67, sar:3.75, cad:1.36, aud:1.52, chf:0.88, try:32.5, rub:92.0,
-  sgd:1.34, myr:4.7, thb:36.0, idr:15800, hkd:7.82, krw:1370, nzd:1.65,
-  zar:18.6, brl:5.05, mxn:17.1, sek:10.6, nok:10.8, dkk:6.85, pln:3.95,
-  egp:48.5, ngn:1480, bdt:117, vnd:25400, php:57.0, ils:3.7,
-  qar:3.64, kwd:0.307, bhd:0.376, omr:0.385, jod:0.709, lkr:300.0
+  usd:1, eur:0.92, gbp:0.79, jpy:155.0, chf:0.88, cad:1.36, aud:1.52, nzd:1.65,
+  cny:7.25, hkd:7.82, twd:32.0, krw:1370, sgd:1.34, myr:4.7, thb:36.0, idr:15800,
+  vnd:25400, php:57.0, inr:83.4, pkr:278.0, bdt:117, lkr:300.0, npr:133.0, mmk:2100,
+  khr:4100, lak:21000, bnd:1.34, mop:8.06, mvr:15.4, btn:83.4,
+  aed:3.67, sar:3.75, qar:3.64, kwd:0.307, bhd:0.376, omr:0.385, jod:0.709,
+  lbp:89500, syp:13000, irr:42000, iqd:1310, yer:250, afn:71.0, ils:3.7, try:32.5,
+  egp:48.5, mad:9.95, dzd:134.0, tnd:3.13, lyd:4.85, sdg:601, etb:57.0, kes:129,
+  ugx:3760, tzs:2680, ngn:1480, ghs:14.5, zar:18.6, bwp:13.6, nad:18.6, mur:46.0,
+  xof:603, xaf:603, sek:10.6, nok:10.8, dkk:6.85, isk:139, pln:3.95, czk:23.2,
+  huf:362, ron:4.58, bgn:1.80, hrk:6.93, rsd:108, uah:39.5, byn:3.27, rub:92.0,
+  mnt:3380, kzt:475, uzs:12700, azn:1.70, gel:2.70, amd:388, kgs:88.5, tjs:10.9, tmt:3.5,
+  brl:5.05, mxn:17.1, ars:870, clp:945, cop:4080, pen:3.78, uyu:39.5, ves:36.5,
+  bob:6.91, pyg:7300, crc:512, gtq:7.78, hnl:24.7, nio:36.7, pab:1, dop:58.5,
+  cup:24, jmd:155, ttd:6.78, bbd:2, bsd:1, xcd:2.7, htg:132, ang:1.79, awg:1.8,
+  srd:33.5, gyd:209, bzd:2.01,
+  all:93.8, mkd:56.7, bam:1.80, mdl:17.5, zmw:25.8, mwk:1730, aoa:830, mzn:63.9,
+  mga:4500, scr:13.6, rwf:1300, bif:2860, cdf:2780, djf:178, sos:571, sll:22000,
+  lrd:188, gmd:67.5, cve:101, stn:22.6, szl:18.6, lsl:18.6, zwl:13.5,
+  fjd:2.25, pgk:3.92, sbd:8.4, vuv:120, wst:2.74, top:2.36, xpf:109,
+  xau:0.00043, xag:0.034, xdr:0.755,
+  btc:0.0000156, eth:0.00033, usdt:1.0, bnb:0.0017, xrp:1.96
 };
 
 let FX_RATES = null;
@@ -152,7 +205,7 @@ async function wireFx(){
   const rate   = document.getElementById('fx-rate');
   if (!amount || !from || !to) return;
 
-  // Populate dropdowns IMMEDIATELY (independent of rate fetch)
+  // Populate dropdowns IMMEDIATELY (independent of rate fetch).
   const opts = FX_LIST.map(([c,n]) => `<option value="${c}">${c} — ${n}</option>`).join('');
   from.innerHTML = opts; to.innerHTML = opts;
   from.value = 'USD'; to.value = 'EUR';
@@ -170,11 +223,11 @@ async function wireFx(){
   };
 
   [amount, from, to].forEach(el => el.addEventListener('input', update));
+  [from, to].forEach(el => el.addEventListener('change', update));
   swap.addEventListener('click', () => { const t = from.value; from.value = to.value; to.value = t; update(); });
   goBtn && goBtn.addEventListener('click', update);
 
   rate.textContent = 'Loading rates…';
-  // Hard cap: even if loadRates somehow stalls, fall back after 6s.
   const timeout = new Promise(res => setTimeout(() => { FX_FALLBACK_USED = true; res(FX_STATIC); }, 6000));
   FX_RATES = await Promise.race([loadRates(), timeout]);
   update();

@@ -14,7 +14,6 @@
 </head>
 <body>
 
-  <!-- ───────────── Header ───────────── -->
   <header class="site-header">
     <div class="header-inner">
       <a href="/" class="brand" aria-label="ILovePDF home">
@@ -35,16 +34,13 @@
     </div>
   </header>
 
-  <!-- ───────────── Mobile drawer (filled by chrome.js) ───────────── -->
   <div class="drawer" id="drawer" aria-hidden="true">
     <div class="drawer-back"></div>
     <div class="drawer-panel"></div>
   </div>
 
-  <!-- ───────────── Page ───────────── -->
   <div class="page">
 
-    <!-- LEFT RAIL -->
     <aside class="rail" aria-label="Sidebar">
       <div class="rail-sticky">
         <!-- Numbers to Words Calculator -->
@@ -59,7 +55,6 @@
           <div class="calc-body">
             <label class="calc-label" for="calc-input">Enter a number</label>
             <input id="calc-input" class="calc-input" type="text" placeholder="e.g. 12345.67" autocomplete="off">
-
             <div class="calc-modes" role="radiogroup" aria-label="Output mode">
               <label class="calc-mode active" data-mode="words">
                 <input type="radio" name="calc-mode" value="words" checked>
@@ -70,7 +65,6 @@
                 Currency
               </label>
             </div>
-
             <select id="calc-currency" class="calc-currency" aria-label="Currency">
               <option value="USD">USD — Dollars</option>
               <option value="EUR">EUR — Euros</option>
@@ -78,9 +72,7 @@
               <option value="INR">INR — Rupees</option>
               <option value="JPY">JPY — Yen</option>
             </select>
-
             <button id="calc-go" class="calc-btn">Convert</button>
-
             <div id="calc-out" class="calc-out" aria-live="polite"></div>
           </div>
         </div>
@@ -91,13 +83,12 @@
             <span class="ico"><i data-lucide="dollar-sign"></i></span>
             <div>
               <h3>Currency Converter</h3>
-              <p>Live rates · 50+ currencies</p>
+              <p>Live rates · 160+ currencies</p>
             </div>
           </div>
           <div class="calc-body">
             <label class="calc-label" for="fx-amount">Amount</label>
             <input id="fx-amount" class="calc-input" type="number" inputmode="decimal" value="1" min="0" step="any">
-
             <div class="fx-row">
               <div>
                 <label class="calc-label" for="fx-from">From</label>
@@ -111,9 +102,7 @@
                 <select id="fx-to" class="calc-input"></select>
               </div>
             </div>
-
             <button id="fx-go" class="calc-btn" type="button">Convert</button>
-
             <div id="fx-out" class="calc-out show fx-out">
               <div class="fx-result" id="fx-result">—</div>
               <div class="fx-rate" id="fx-rate">Loading rates…</div>
@@ -122,17 +111,13 @@
         </div>
       </div>
 
-      <!-- Ad blocks (scroll normally) -->
       <div class="ad">Advertisement</div>
       <div class="ad">Advertisement</div>
       <div class="ad">Advertisement</div>
       <div class="ad">Advertisement</div>
     </aside>
 
-    <!-- RIGHT CONTENT -->
     <main class="content">
-
-      <!-- HERO -->
       <section class="hero" id="hero">
         <div class="hero-text">
           <span class="hero-eyebrow"><i data-lucide="sparkles"></i> 33+ Free Tools</span>
@@ -145,7 +130,6 @@
         </div>
       </section>
 
-      <!-- Mobile-only "Open Calculators" toggle (shown <=1024px) -->
       <button class="calc-toggle" id="calc-toggle" type="button" aria-expanded="false" aria-controls="calc-mobile-slot">
         <span class="ct-left">
           <span class="ct-ico"><i data-lucide="calculator"></i></span>
@@ -155,7 +139,6 @@
       </button>
       <div id="calc-mobile-slot"></div>
 
-      <!-- TOOLS GRID -->
       <div>
         <div class="section-head">
           <div>
@@ -165,11 +148,9 @@
         </div>
         <div id="tools-root"></div>
       </div>
-
     </main>
   </div>
 
-  <!-- ───────────── Footer ───────────── -->
   <footer class="footer">
     <div class="footer-inner">
       <div class="footer-col footer-brand">

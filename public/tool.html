@@ -6,21 +6,25 @@
   <title>ILovePDF — Online Tool</title>
   <meta name="description" content="Free online PDF tool by ILovePDF. No signup required. Fast and secure processing.">
   <meta name="robots" content="index, follow">
+  <meta name="author" content="ILovePDF">
+  <meta property="og:site_name" content="ILovePDF">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/home.css">
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="/css/home.css">
+  <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
 
-  <!-- Header -->
+  <!-- ───────────── Shared Header (filled by chrome.js) ───────────── -->
   <header class="site-header">
     <div class="header-inner">
       <a href="/" class="brand" aria-label="ILovePDF home">
         <span class="brand-mark"><i data-lucide="file-text"></i></span>
         <span class="brand-name">ILove<span>PDF</span></span>
       </a>
+
       <nav class="nav" id="nav" aria-label="Main"></nav>
+
       <div class="header-cta">
         <a href="#" class="btn btn-ghost" data-auth="login">Login</a>
         <a href="#" class="btn btn-ghost btn-signin" data-auth="signin">Sign In</a>
@@ -32,16 +36,15 @@
     </div>
   </header>
 
-  <!-- Mobile drawer -->
   <div class="drawer" id="drawer" aria-hidden="true">
     <div class="drawer-back"></div>
     <div class="drawer-panel"></div>
   </div>
 
-  <!-- Tool content (full-width centered, no sidebar) -->
+  <!-- ───────────── Tool content (centered, full-width, NO sidebar) ───────────── -->
   <main id="tool-content" class="tool-page"></main>
 
-  <!-- Footer (matches homepage footer styling) -->
+  <!-- ───────────── Shared Footer ───────────── -->
   <footer class="footer">
     <div class="footer-inner">
       <div class="footer-col footer-brand">
@@ -83,7 +86,7 @@
     </div>
   </footer>
 
-  <!-- Tool-page modals -->
+  <!-- ───────────── Modals (kept from original tool layout) ───────────── -->
   <div id="coming-soon-modal" class="modal-backdrop hidden" onclick="handleModalBackdropClick(event)">
     <div class="modal-box">
       <button class="modal-close" onclick="closeComingSoonModal()" aria-label="Close"><i data-lucide="x"></i></button>
@@ -104,6 +107,7 @@
       <h3 class="modal-title">Sign Up Required</h3>
       <p class="modal-message">
         Files larger than <strong>100&nbsp;MB</strong> require a free account.
+        Create one to unlock larger uploads and premium features.
       </p>
       <div class="file-info" id="signup-file-info"></div>
       <div class="modal-actions">
@@ -128,7 +132,7 @@
     <div class="cookie-inner">
       <div class="cookie-text">
         <strong>We use cookies</strong> to improve your experience. By using ILovePDF you agree to our
-        <a href="/privacy.html">Privacy Policy</a>.
+        <a href="/privacy.html">Privacy Policy</a>. Files are deleted within seconds after processing.
       </div>
       <div class="cookie-actions">
         <button class="btn btn-primary btn-sm" onclick="acceptCookies()">Accept</button>
@@ -137,12 +141,11 @@
     </div>
   </div>
 
-  <script src="https://unpkg.com/lucide@latest" defer></script>
-  <script src="js/tools-config.js" defer></script>
-  <script src="js/auth-ui.js" defer></script>
-  <script src="js/usage-limit.js" defer></script>
-  <script src="js/tool-page.js" defer></script>
-  <script src="js/shared.js" defer></script>
-  <script src="js/chrome.js" defer></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="/js/chrome.js"></script>
+  <script src="/js/tools-config.js" defer></script>
+  <script src="/js/usage-limit.js" defer></script>
+  <script src="/js/tool-page.js" defer></script>
+  <script src="/js/shared.js" defer></script>
 </body>
 </html>
