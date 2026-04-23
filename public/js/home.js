@@ -48,12 +48,20 @@ function wireCalc(){
   if (!input || !btn) return;
 
   let mode = 'words';
+  let letterCase = 'lowercase';
   modes.forEach(m => {
     m.addEventListener('click', () => {
       modes.forEach(x => x.classList.remove('active'));
       m.classList.add('active');
       mode = m.dataset.mode;
       currency.classList.toggle('show', mode === 'currency');
+    });
+  });
+  document.querySelectorAll('.case-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.case-btn').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      letterCase = b.dataset.case;
     });
   });
 
@@ -65,7 +73,7 @@ function wireCalc(){
       out.textContent = 'Converter is loading…'; out.classList.add('show','err'); return;
     }
     const res = window.convertNumberToWords(val, {
-      mode, currency: currency.value, letterCase: 'Sentence Case',
+      mode, currency: currency.value, letterCase,
     });
     if (res.error) { out.textContent = res.error; out.classList.add('show','err'); return; }
     out.textContent = res.text;

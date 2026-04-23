@@ -72,6 +72,15 @@
               <option value="INR">INR — Rupees</option>
               <option value="JPY">JPY — Yen</option>
             </select>
+
+            <label class="calc-label" style="margin-top:10px;">Letter case</label>
+            <div class="case-row" role="radiogroup" aria-label="Letter case">
+              <button type="button" class="case-btn active" data-case="lowercase">lowercase</button>
+              <button type="button" class="case-btn" data-case="UPPERCASE">UPPERCASE</button>
+              <button type="button" class="case-btn" data-case="Title Case">Title Case</button>
+              <button type="button" class="case-btn" data-case="Sentence Case">Sentence</button>
+            </div>
+
             <button id="calc-go" class="calc-btn">Convert</button>
             <div id="calc-out" class="calc-out" aria-live="polite"></div>
           </div>

@@ -177,21 +177,35 @@ function ensureAuthModal(){
       </div>
       <h3 id="auth-title">Welcome back</h3>
       <p class="auth-sub" id="auth-sub">Login to access your saved documents.</p>
-      <form class="auth-form" id="auth-form" novalidate>
-        <label class="auth-field auth-name" data-only="signup">
-          <span>Full name</span>
-          <input type="text" name="name" placeholder="Your name" autocomplete="name">
-        </label>
-        <label class="auth-field">
-          <span>Email</span>
-          <input type="email" name="email" placeholder="you@example.com" autocomplete="email" required>
-        </label>
-        <label class="auth-field">
-          <span>Password</span>
-          <input type="password" name="password" placeholder="••••••••" autocomplete="current-password" required minlength="6">
-        </label>
-        <button class="auth-submit" type="submit" id="auth-submit">Login</button>
-        <div class="auth-msg" id="auth-msg"></div>
+
+      <!-- LOGIN / SIGN-IN form (uses /api/auth/login) -->
+      <form class="auth-form" id="auth-login-form" novalidate>
+        <label class="auth-field"><span>Email</span>
+          <input type="email" name="email" placeholder="you@example.com" autocomplete="email" required></label>
+        <label class="auth-field"><span>Password</span>
+          <input type="password" name="password" placeholder="••••••••" autocomplete="current-password" required minlength="6"></label>
+        <button class="auth-submit" type="submit">Login</button>
+        <div class="auth-msg" id="login-msg"></div>
+      </form>
+
+      <!-- SIGN-UP step 1: just an email; server emails a confirmation link -->
+      <form class="auth-form" id="auth-signup-form" novalidate hidden>
+        <label class="auth-field"><span>Email address</span>
+          <input type="email" name="email" placeholder="you@example.com" autocomplete="email" required></label>
+        <button class="auth-submit" type="submit">Send confirmation email</button>
+        <p class="auth-fineprint">We'll email you a link to confirm your address. Then you'll set your name and password.</p>
+        <div class="auth-msg" id="signup-msg"></div>
+        <div class="signup-sent" id="signup-sent" hidden>
+          <div class="ss-head">
+            <i data-lucide="mail-check"></i>
+            <strong>Check your inbox</strong>
+          </div>
+          <p>A confirmation link was sent to <strong id="ss-email"></strong>. Click it within 30 minutes to finish creating your account.</p>
+          <div class="ss-demo" id="ss-demo" hidden>
+            <p class="ss-demo-title">📬 Demo mode — no email service is configured yet, so the confirmation link is shown here:</p>
+            <a id="ss-link" href="#" class="ss-link"></a>
+          </div>
+        </div>
       </form>
     </div>`;
   document.body.appendChild(wrap);
@@ -200,13 +214,48 @@ function ensureAuthModal(){
   wrap.querySelector('.auth-close').addEventListener('click', closeAuth);
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAuth(); });
   wrap.querySelectorAll('.auth-tab').forEach(t => t.addEventListener('click', () => setAuthTab(t.dataset.tab)));
-  wrap.querySelector('#auth-form').addEventListener('submit', e => {
+
+  // login / sign-in submit
+  wrap.querySelector('#auth-login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const tab = wrap.dataset.tab || 'login';
-    const msg = wrap.querySelector('#auth-msg');
-    msg.className = 'auth-msg success';
-    const labels = { login:'Logged in', signin:'Signed in', signup:'Account created' };
-    msg.textContent = `${labels[tab]} successfully (demo). Backend integration coming soon.`;
+    const fd = new FormData(e.target);
+    const msg = wrap.querySelector('#login-msg'); msg.className = 'auth-msg'; msg.textContent = '';
+    try {
+      const r = await fetch('/api/auth/login', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ email: fd.get('email'), password: fd.get('password') })
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || 'Login failed.');
+      msg.className = 'auth-msg success';
+      msg.textContent = `Welcome back, ${d.user.name.split(' ')[0]}!`;
+      setTimeout(() => location.reload(), 700);
+    } catch (err) { msg.className = 'auth-msg bad'; msg.textContent = err.message; }
+  });
+
+  // signup step 1: send confirmation email
+  wrap.querySelector('#auth-signup-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = new FormData(e.target).get('email');
+    const msg = wrap.querySelector('#signup-msg'); msg.className = 'auth-msg'; msg.textContent = '';
+    const sent = wrap.querySelector('#signup-sent'); sent.hidden = true;
+    try {
+      const r = await fetch('/api/auth/start-signup', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ email })
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || 'Could not send confirmation email.');
+      wrap.querySelector('#ss-email').textContent = d.email;
+      if (!d.emailDelivered && d.link) {
+        const a = wrap.querySelector('#ss-link');
+        a.href = d.link; a.textContent = d.link;
+        wrap.querySelector('#ss-demo').hidden = false;
+      }
+      sent.hidden = false;
+      e.target.querySelector('button[type="submit"]').textContent = 'Resend email';
+      window.lucide && window.lucide.createIcons && window.lucide.createIcons();
+    } catch (err) { msg.className = 'auth-msg bad'; msg.textContent = err.message; }
   });
 }
 
@@ -215,17 +264,18 @@ function setAuthTab(tab){
   wrap.dataset.tab = tab;
   wrap.querySelectorAll('.auth-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
   const titles = {
-    login:  ['Welcome back', 'Login to access your saved documents.', 'Login'],
-    signin: ['Sign in to ILovePDF', 'Continue where you left off.', 'Sign In'],
-    signup: ['Create your account', 'Get unlimited file size and history.', 'Create account'],
+    login:  ['Welcome back', 'Login to access your saved documents.'],
+    signin: ['Sign in to ILovePDF', 'Continue where you left off.'],
+    signup: ['Create your account', 'Step 1 of 2 — confirm your email, then set your password.'],
   };
-  const [h, s, btn] = titles[tab] || titles.login;
+  const [h, s] = titles[tab] || titles.login;
   wrap.querySelector('#auth-title').textContent = h;
   wrap.querySelector('#auth-sub').textContent = s;
-  wrap.querySelector('#auth-submit').textContent = btn;
-  wrap.querySelector('.auth-name').style.display = (tab === 'signup') ? 'block' : 'none';
-  wrap.querySelector('#auth-msg').textContent = '';
-  wrap.querySelector('#auth-msg').className = 'auth-msg';
+  const isSignup = (tab === 'signup');
+  wrap.querySelector('#auth-login-form').hidden  =  isSignup;
+  wrap.querySelector('#auth-signup-form').hidden = !isSignup;
+  wrap.querySelector('#login-msg').textContent = '';
+  wrap.querySelector('#signup-msg').textContent = '';
 }
 
 function openAuth(tab){

@@ -702,3 +702,83 @@ body:has(#tool-content) .app-layout{display:block !important}
 /* Header right cluster — Sign In hidden on narrow */
 .btn-signin{display:inline-flex}
 @media (max-width:1280px){.btn-signin{display:none}}
+
+/* ============================================================
+   PASS 2 — Hover bridge fix, letter-case row, auth-flow polish
+   ============================================================ */
+
+/* Robust hover bridge: keep dropdowns open while pointer crosses gap */
+.nav-item.has-dd::after{
+  content:"";position:absolute;left:-12px;right:-12px;top:100%;height:18px;
+  background:transparent;
+}
+.nav-item .dd, .nav-item .mega{ pointer-events:none }
+.nav-item:hover .dd, .nav-item:hover .mega,
+.nav-item:focus-within .dd, .nav-item:focus-within .mega{ pointer-events:auto }
+
+/* Letter-case selector (under currency, above Convert) */
+.case-row{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:6px 0 4px;
+}
+.case-btn{
+  padding:8px 10px;border-radius:9px;border:1px solid var(--border);
+  background:#fff;color:var(--text-soft);font:inherit;font-size:.78rem;font-weight:600;
+  cursor:pointer;transition:.15s background,.15s color,.15s border-color;
+}
+.case-btn:hover{border-color:var(--primary);color:var(--primary)}
+.case-btn.active{background:var(--grad);color:#fff;border-color:transparent;box-shadow:var(--shadow-sm)}
+
+/* Auth modal — extra elements for new signup flow */
+.auth-fineprint{font-size:.74rem;color:var(--text-mute);margin:6px 0 0;line-height:1.5}
+.auth-msg.bad{color:#dc2626}
+.signup-sent{
+  margin-top:14px;padding:14px;border-radius:12px;background:var(--surface-2);
+  border:1px solid var(--border);font-size:.85rem;line-height:1.5;
+}
+.ss-head{display:flex;align-items:center;gap:8px;color:var(--primary);font-weight:700;margin-bottom:6px}
+.ss-head svg{width:18px;height:18px}
+.ss-demo{margin-top:10px;padding-top:10px;border-top:1px dashed var(--border)}
+.ss-demo-title{font-size:.78rem;color:var(--text-mute);margin:0 0 6px}
+.ss-link{
+  display:block;padding:10px;border-radius:9px;background:#fff;border:1px solid var(--primary);
+  color:var(--primary);font-size:.78rem;word-break:break-all;text-decoration:none;
+}
+.ss-link:hover{background:var(--grad-soft)}
+
+/* Verify-signup landing page */
+.verify-page{
+  min-height:calc(100vh - 200px);display:flex;align-items:center;justify-content:center;
+  padding:40px 20px;background:var(--bg);
+}
+.verify-card{
+  width:100%;max-width:520px;background:#fff;border-radius:18px;
+  padding:36px 32px;box-shadow:var(--shadow-lg);border:1px solid var(--border);
+}
+.verify-loading{text-align:center;color:var(--text-soft);padding:32px 0}
+.verify-loading svg{width:36px;height:36px;color:var(--primary);animation:spin 1s linear infinite;margin-bottom:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.verify-error{text-align:center}
+.verify-error h2{margin:6px 0 4px;font-size:1.4rem;color:var(--text)}
+.verify-error p{color:var(--text-soft);margin:0 0 12px}
+.verify-emoji{font-size:2.4rem;display:block}
+.verify-icon{
+  width:60px;height:60px;border-radius:14px;background:var(--grad-soft);color:var(--primary);
+  display:grid;place-items:center;margin:0 auto 14px;
+}
+.verify-icon svg{width:28px;height:28px}
+.verify-form h2{margin:0 0 4px;text-align:center;font-size:1.4rem}
+.verify-sub{margin:0 0 22px;text-align:center;color:var(--text-soft);font-size:.92rem}
+.verify-form .auth-field{margin-bottom:14px}
+.vf-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.vf-row .auth-field{margin-bottom:14px}
+.pwd-icon{display:inline-flex;vertical-align:middle;margin-left:4px}
+.pwd-icon svg{width:14px;height:14px}
+.pwd-confirm .pwd-icon svg{color:var(--text-mute)}
+.pwd-hint{display:block;font-size:.74rem;margin-top:4px;min-height:1em}
+.pwd-hint.ok{color:#059669}
+.pwd-hint.bad{color:#dc2626}
+.field-good{border-color:#10b981 !important;box-shadow:0 0 0 3px rgba(16,185,129,.12) !important}
+.field-bad{border-color:#dc2626 !important;box-shadow:0 0 0 3px rgba(220,38,38,.12) !important}
+#vf-submit{opacity:.55;cursor:not-allowed;transition:.2s opacity, .2s background}
+#vf-submit.ok{opacity:1;cursor:pointer;background:linear-gradient(135deg,#10b981 0%, #059669 100%)}
+@media (max-width:480px){.vf-row{grid-template-columns:1fr}}

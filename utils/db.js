@@ -11,6 +11,12 @@ const db = new Database(path.join(dataDir, 'app.db'));
 db.pragma('journal_mode = WAL');
 
 db.exec(`
+  CREATE TABLE IF NOT EXISTS pending_signups (
+    token       TEXT PRIMARY KEY,
+    email       TEXT NOT NULL,
+    expires_at  INTEGER NOT NULL,
+    created_at  INTEGER NOT NULL
+  );
   CREATE TABLE IF NOT EXISTS users (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
     email         TEXT UNIQUE NOT NULL,

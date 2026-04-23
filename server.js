@@ -68,6 +68,11 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error.' });
 });
 
+// Email-confirmation landing page
+app.get('/verify-signup', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'verify-signup.html'));
+});
+
 // ── SEO routes: /merge-pdf, /split-pdf, /pdf-to-word, /numbers-to-words … ──
 const TOOL_HTML = fs.readFileSync(path.join(__dirname, 'public', 'tool.html'), 'utf8');
 app.get('/:slug', (req, res, next) => {

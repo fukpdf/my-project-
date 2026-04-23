@@ -1,12 +1,14 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import db from '../utils/db.js';
 
 const router = express.Router();
 const SECRET = process.env.JWT_SECRET || 'dev-secret-change-me';
 const COOKIE = 'ilovepdf_token';
 const QUOTA = 2 * 1024 * 1024 * 1024; // 2 GB
+const VERIFY_TTL_MS = 30 * 60 * 1000; // confirmation link valid 30 min
 
 function sign(user) {
   return jwt.sign({ id: user.id, email: user.email, name: user.name }, SECRET, { expiresIn: '30d' });
@@ -68,6 +70,70 @@ router.post('/auth/logout', (req, res) => {
 router.get('/auth/me', authMiddleware, (req, res) => {
   const user = db.prepare('SELECT * FROM users WHERE id=?').get(req.user.id);
   if (!user) return res.status(404).json({ error: 'User not found' });
+  res.json({ user: publicUser(user) });
+});
+
+/* ─────────── Email-confirmation signup flow ─────────── */
+
+// Step 1 — user enters email, server creates a confirmation token + link.
+// (No email service configured on this plan — server returns the link directly.)
+router.post('/auth/start-signup', (req, res) => {
+  const email = String(req.body?.email || '').trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({ error: 'Please enter a valid email address.' });
+  }
+  if (db.prepare('SELECT id FROM users WHERE email=?').get(email)) {
+    return res.status(409).json({ error: 'An account with this email already exists. Please log in.' });
+  }
+  const token = crypto.randomBytes(24).toString('hex');
+  const now = Date.now();
+  db.prepare('DELETE FROM pending_signups WHERE email=? OR expires_at<?').run(email, now);
+  db.prepare(`
+    INSERT INTO pending_signups (token, email, expires_at, created_at)
+    VALUES (?, ?, ?, ?)
+  `).run(token, email, now + VERIFY_TTL_MS, now);
+
+  const proto = req.headers['x-forwarded-proto'] || req.protocol || 'https';
+  const host  = req.headers['x-forwarded-host']  || req.headers.host;
+  const link  = `${proto}://${host}/verify-signup?token=${token}`;
+  // emailDelivered:false signals the frontend to show the link inline (demo mode).
+  res.json({ ok: true, email, link, emailDelivered: false });
+});
+
+// Step 2 — frontend (verify-signup.html) validates the token before showing the form.
+router.get('/auth/verify-token', (req, res) => {
+  const row = db.prepare('SELECT email, expires_at FROM pending_signups WHERE token=?').get(req.query.token);
+  if (!row)                       return res.status(404).json({ error: 'This confirmation link is invalid.' });
+  if (row.expires_at < Date.now()) return res.status(410).json({ error: 'This confirmation link has expired. Please start over.' });
+  res.json({ ok: true, email: row.email });
+});
+
+// Step 3 — user submits first/last name + password (twice). Account created, auto-login.
+router.post('/auth/complete-signup', (req, res) => {
+  const { token, firstName, lastName, password, confirmPassword } = req.body || {};
+  if (!token)                                return res.status(400).json({ error: 'Missing confirmation token.' });
+  if (!firstName || !lastName)               return res.status(400).json({ error: 'First and last name are required.' });
+  if (!password || password.length < 6)      return res.status(400).json({ error: 'Password must be at least 6 characters.' });
+  if (password !== confirmPassword)          return res.status(400).json({ error: 'Passwords do not match.' });
+
+  const row = db.prepare('SELECT email, expires_at FROM pending_signups WHERE token=?').get(token);
+  if (!row)                       return res.status(404).json({ error: 'Confirmation link is invalid.' });
+  if (row.expires_at < Date.now()) return res.status(410).json({ error: 'Confirmation link has expired.' });
+
+  if (db.prepare('SELECT id FROM users WHERE email=?').get(row.email)) {
+    return res.status(409).json({ error: 'An account with this email already exists.' });
+  }
+
+  const fullName = `${String(firstName).trim()} ${String(lastName).trim()}`.trim();
+  const hash     = bcrypt.hashSync(password, 10);
+  const info = db.prepare(`
+    INSERT INTO users (email, name, password_hash, storage_quota, storage_used)
+    VALUES (?, ?, ?, ?, 0)
+  `).run(row.email, fullName, hash, QUOTA);
+
+  db.prepare('DELETE FROM pending_signups WHERE token=?').run(token);
+  const user = db.prepare('SELECT * FROM users WHERE id=?').get(info.lastInsertRowid);
+  res.cookie(COOKIE, sign(user), { httpOnly: true, sameSite: 'lax', maxAge: 30 * 24 * 3600 * 1000 });
   res.json({ user: publicUser(user) });
 });
 
