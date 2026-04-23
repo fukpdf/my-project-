@@ -1,15 +1,26 @@
 import express from 'express';
-import multer from 'multer';
 import { PDFDocument, rgb, StandardFonts, degrees } from 'pdf-lib';
 import fs from 'fs';
 import { cleanupFiles, sendPdf } from '../utils/cleanup.js';
+import { createUpload } from '../utils/upload.js';
+import { gsCompress } from '../utils/pdfTools.js';
 
 const router = express.Router();
-const upload = multer({ dest: 'uploads/', limits: { fileSize: 100 * 1024 * 1024 } });
+const upload = createUpload('pdf', 100 * 1024 * 1024);
 
+// Compress — Ghostscript first (real size reduction), pdf-lib fallback
 router.post('/compress', upload.single('pdf'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Please upload a PDF file.' });
   try {
-    if (!req.file) return res.status(400).json({ error: 'Please upload a PDF file.' });
+    const quality = ['screen','ebook','printer','prepress'].includes(req.body.quality)
+      ? req.body.quality : 'ebook';
+    try {
+      const buf = await gsCompress(req.file.path, quality);
+      cleanupFiles(req.file);
+      return sendPdf(res, buf, 'fukpdf-compress.pdf');
+    } catch (gErr) {
+      console.warn('[compress] ghostscript failed, falling back to pdf-lib:', gErr.message);
+    }
     const bytes = fs.readFileSync(req.file.path);
     const doc = await PDFDocument.load(bytes, { updateMetadata: false });
     const outBytes = await doc.save({ useObjectStreams: true, addDefaultPage: false });

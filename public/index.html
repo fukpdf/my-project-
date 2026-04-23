@@ -25,7 +25,6 @@
 
       <div class="header-cta">
         <a href="#" class="btn btn-ghost" data-auth="login">Login</a>
-        <a href="#" class="btn btn-ghost btn-signin" data-auth="signin">Sign In</a>
         <a href="#" class="btn btn-primary" data-auth="signup">Sign Up</a>
         <button class="hamburger" id="hamburger" aria-label="Open menu">
           <i data-lucide="menu"></i>
@@ -73,16 +72,20 @@
               <option value="JPY">JPY — Yen</option>
             </select>
 
-            <label class="calc-label" style="margin-top:10px;">Letter case</label>
-            <div class="case-row" role="radiogroup" aria-label="Letter case">
-              <button type="button" class="case-btn active" data-case="lowercase">lowercase</button>
-              <button type="button" class="case-btn" data-case="UPPERCASE">UPPERCASE</button>
-              <button type="button" class="case-btn" data-case="Title Case">Title Case</button>
-              <button type="button" class="case-btn" data-case="Sentence Case">Sentence</button>
-            </div>
+            <label class="calc-label" style="margin-top:10px;" for="calc-case">Case</label>
+            <select id="calc-case" class="calc-currency show" aria-label="Letter case">
+              <option value="lowercase">lowercase</option>
+              <option value="UPPERCASE">UPPERCASE</option>
+              <option value="Title Case">Title Case</option>
+            </select>
 
             <button id="calc-go" class="calc-btn">Convert</button>
-            <div id="calc-out" class="calc-out" aria-live="polite"></div>
+            <div class="calc-out-wrap" id="calc-out-wrap" hidden>
+              <div id="calc-out" class="calc-out show" aria-live="polite"></div>
+              <button type="button" id="calc-copy" class="calc-copy" aria-label="Copy to clipboard">
+                <i data-lucide="copy"></i><span>Copy</span>
+              </button>
+            </div>
           </div>
         </div>
 

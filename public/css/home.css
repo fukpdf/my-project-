@@ -782,3 +782,56 @@ body:has(#tool-content) .app-layout{display:block !important}
 #vf-submit{opacity:.55;cursor:not-allowed;transition:.2s opacity, .2s background}
 #vf-submit.ok{opacity:1;cursor:pointer;background:linear-gradient(135deg,#10b981 0%, #059669 100%)}
 @media (max-width:480px){.vf-row{grid-template-columns:1fr}}
+
+/* ============================================================
+   PASS 3 — N2W case dropdown + copy button + limit-reached popup
+   ============================================================ */
+
+/* Output wrapper now contains text + copy button */
+.calc-out-wrap{
+  margin-top:10px;background:#f8fafc;border-left:3px solid var(--primary);
+  border-radius:8px;padding:10px 12px;display:flex;align-items:flex-start;gap:8px;
+}
+.calc-out-wrap .calc-out{
+  flex:1;background:transparent;padding:0;border:0;border-radius:0;font-size:.82rem;
+  color:var(--text);margin:0;line-height:1.5;word-break:break-word;
+}
+.calc-copy{
+  flex-shrink:0;display:inline-flex;align-items:center;gap:4px;
+  padding:5px 10px;border-radius:7px;border:1px solid var(--border);
+  background:#fff;color:var(--text-soft);font:inherit;font-size:.72rem;font-weight:600;
+  cursor:pointer;transition:.15s all;
+}
+.calc-copy svg{width:13px;height:13px}
+.calc-copy:hover{border-color:var(--primary);color:var(--primary)}
+.calc-copy.copied{background:#10b981;color:#fff;border-color:transparent}
+
+/* Override the always-visible currency/case selects */
+.calc-currency.show{display:block;width:100%;margin-top:6px}
+
+/* Limit-reached popup — used on every tool page when the API returns 429/413 */
+.limit-modal{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center}
+.limit-modal.open{display:flex}
+.limit-back{position:absolute;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(4px)}
+.limit-card{
+  position:relative;width:min(440px,92vw);background:#fff;border-radius:18px;
+  padding:28px 26px;text-align:center;box-shadow:var(--shadow-lg);
+  animation:popIn .25s ease-out;
+}
+@keyframes popIn{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+.limit-card .limit-icon{
+  width:60px;height:60px;border-radius:14px;background:var(--grad-soft);color:var(--primary);
+  display:grid;place-items:center;margin:0 auto 14px;
+}
+.limit-card .limit-icon svg{width:28px;height:28px}
+.limit-card h3{margin:0 0 6px;font-size:1.25rem;color:var(--text)}
+.limit-card p{margin:0 0 18px;color:var(--text-soft);line-height:1.55;font-size:.9rem}
+.limit-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.limit-actions .btn{padding:10px 20px;border-radius:10px;font-weight:600;cursor:pointer;border:0}
+.limit-actions .btn-primary{background:var(--grad);color:#fff}
+.limit-actions .btn-ghost{background:#f1f5f9;color:var(--text)}
+.limit-close{
+  position:absolute;top:10px;right:10px;width:32px;height:32px;border:0;background:transparent;
+  border-radius:8px;cursor:pointer;color:var(--text-mute);display:grid;place-items:center;
+}
+.limit-close:hover{background:#f1f5f9;color:var(--text)}

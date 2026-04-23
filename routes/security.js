@@ -1,14 +1,12 @@
 import express from 'express';
-import multer from 'multer';
 import fs from 'fs';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-import { PDFDocument, StandardFonts, rgb, degrees } from 'pdf-lib';
+import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import { cleanupFiles, sendPdf } from '../utils/cleanup.js';
+import { createUpload } from '../utils/upload.js';
+import { qpdfProtect, qpdfUnlock } from '../utils/pdfTools.js';
 
-const execAsync = promisify(exec);
 const router = express.Router();
-const upload = multer({ dest: 'uploads/', limits: { fileSize: 100 * 1024 * 1024 } });
+const upload = createUpload('pdf', 100 * 1024 * 1024);
 
 router.post('/protect', upload.single('pdf'), async (req, res) => {
   try {
@@ -17,19 +15,13 @@ router.post('/protect', upload.single('pdf'), async (req, res) => {
     const password = (req.body.password || '').trim();
     if (!password) return res.status(400).json({ error: 'Please provide a password.' });
 
-    const inputPath = req.file.path;
-    const outputPath = `${inputPath}-protected.pdf`;
-
     try {
-      await execAsync(
-        `gs -dBATCH -dNOPAUSE -sDEVICE=pdfwrite -dCompatibilityLevel=1.4` +
-        ` -sOwnerPassword="${password}" -sUserPassword="${password}"` +
-        ` -dEncryptionR=3 -dKeyLength=128 -sOutputFile="${outputPath}" "${inputPath}"`
-      );
-      const outBytes = fs.readFileSync(outputPath);
-      cleanupFiles(req.file, { path: outputPath });
-      return sendPdf(res, outBytes, 'fukpdf-protected.pdf');
-    } catch {
+      const buf = await qpdfProtect(req.file.path, password);
+      cleanupFiles(req.file);
+      return sendPdf(res, buf, 'fukpdf-protected.pdf');
+    } catch (qErr) {
+      console.warn('[protect] qpdf failed, falling back to metadata mark:', qErr.message);
+      const inputPath = req.file.path;
       const pdfDoc = await PDFDocument.load(fs.readFileSync(inputPath), { ignoreEncryption: true });
       const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
@@ -60,17 +52,18 @@ router.post('/protect', upload.single('pdf'), async (req, res) => {
 });
 
 router.post('/unlock', upload.single('pdf'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Please upload a PDF file.' });
+  const password = req.body.password || '';
   try {
-    if (!req.file) return res.status(400).json({ error: 'Please upload a PDF file.' });
-
-    const password = req.body.password || '';
+    try {
+      const buf = await qpdfUnlock(req.file.path, password);
+      cleanupFiles(req.file);
+      return sendPdf(res, buf, 'fukpdf-unlocked.pdf');
+    } catch (qErr) {
+      console.warn('[unlock] qpdf failed, falling back to pdf-lib:', qErr.message);
+    }
     const bytes = fs.readFileSync(req.file.path);
-
-    const pdfDoc = await PDFDocument.load(bytes, {
-      password,
-      ignoreEncryption: true,
-    });
-
+    const pdfDoc = await PDFDocument.load(bytes, { password, ignoreEncryption: true });
     const outBytes = await pdfDoc.save();
     cleanupFiles(req.file);
     sendPdf(res, outBytes, 'fukpdf-unlocked.pdf');
@@ -85,4 +78,3 @@ router.post('/unlock', upload.single('pdf'), async (req, res) => {
 });
 
 export default router;
-function toggleSidebar(){document.querySelector(".sidebar").classList.toggle("active")}

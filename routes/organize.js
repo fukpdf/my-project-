@@ -1,16 +1,25 @@
 import express from 'express';
-import multer from 'multer';
 import { PDFDocument, degrees } from 'pdf-lib';
 import fs from 'fs';
 import { cleanupFiles, sendPdf } from '../utils/cleanup.js';
+import { createUpload } from '../utils/upload.js';
+import { qpdfMerge, qpdfSplit, qpdfRotate, qpdfReorder } from '../utils/pdfTools.js';
 
 const router = express.Router();
-const upload = multer({ dest: 'uploads/', limits: { fileSize: 100 * 1024 * 1024 } });
+const upload = createUpload('pdf', 100 * 1024 * 1024);
 
+/* ── MERGE — qpdf with pdf-lib fallback ─────────────────────────────────── */
 router.post('/merge', upload.array('pdfs'), async (req, res) => {
+  if (!req.files || req.files.length < 2) {
+    return res.status(400).json({ error: 'Please upload at least 2 PDF files.' });
+  }
   try {
-    if (!req.files || req.files.length < 2) {
-      return res.status(400).json({ error: 'Please upload at least 2 PDF files.' });
+    try {
+      const buf = await qpdfMerge(req.files.map(f => f.path));
+      cleanupFiles(req.files);
+      return sendPdf(res, buf, 'fukpdf-merge.pdf');
+    } catch (qErr) {
+      console.warn('[merge] qpdf failed, falling back to pdf-lib:', qErr.message);
     }
     const merged = await PDFDocument.create();
     for (const file of req.files) {
@@ -28,24 +37,31 @@ router.post('/merge', upload.array('pdfs'), async (req, res) => {
   }
 });
 
+/* ── SPLIT — qpdf with pdf-lib fallback ─────────────────────────────────── */
 router.post('/split', upload.single('pdf'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Please upload a PDF file.' });
   try {
-    if (!req.file) return res.status(400).json({ error: 'Please upload a PDF file.' });
     const bytes = fs.readFileSync(req.file.path);
     const doc = await PDFDocument.load(bytes);
     const totalPages = doc.getPageCount();
-
     const rangeStr = req.body.range || `1-${totalPages}`;
+
+    try {
+      const buf = await qpdfSplit(req.file.path, rangeStr.replace(/\s+/g, ''));
+      cleanupFiles(req.file);
+      return sendPdf(res, buf, 'fukpdf-split.pdf');
+    } catch (qErr) {
+      console.warn('[split] qpdf failed, falling back to pdf-lib:', qErr.message);
+    }
+
     const pageIndices = parsePageRange(rangeStr, totalPages);
     if (pageIndices.length === 0) {
       cleanupFiles(req.file);
       return res.status(400).json({ error: 'Invalid page range. Use format: 1-3, 5, 7-9' });
     }
-
     const newDoc = await PDFDocument.create();
     const pages = await newDoc.copyPages(doc, pageIndices);
     pages.forEach(page => newDoc.addPage(page));
-
     const outBytes = await newDoc.save();
     cleanupFiles(req.file);
     sendPdf(res, outBytes, 'fukpdf-split.pdf');
@@ -55,20 +71,28 @@ router.post('/split', upload.single('pdf'), async (req, res) => {
   }
 });
 
+/* ── ROTATE — qpdf with pdf-lib fallback ────────────────────────────────── */
 router.post('/rotate', upload.single('pdf'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Please upload a PDF file.' });
   try {
-    if (!req.file) return res.status(400).json({ error: 'Please upload a PDF file.' });
     const rotDegrees = parseInt(req.body.degrees) || 90;
-    const pagesParam = req.body.pages || 'all';
+    const pagesParam = (req.body.pages || 'all').trim();
+
+    try {
+      const scope = pagesParam.toLowerCase() === 'all' ? 'all' : pagesParam.replace(/\s+/g, '');
+      const buf = await qpdfRotate(req.file.path, rotDegrees, scope);
+      cleanupFiles(req.file);
+      return sendPdf(res, buf, 'fukpdf-rotate.pdf');
+    } catch (qErr) {
+      console.warn('[rotate] qpdf failed, falling back to pdf-lib:', qErr.message);
+    }
 
     const bytes = fs.readFileSync(req.file.path);
     const doc = await PDFDocument.load(bytes);
     const totalPages = doc.getPageCount();
-
-    const pageIndices = pagesParam.trim().toLowerCase() === 'all'
+    const pageIndices = pagesParam.toLowerCase() === 'all'
       ? Array.from({ length: totalPages }, (_, i) => i)
       : parsePageRange(pagesParam, totalPages);
-
     pageIndices.forEach(i => {
       if (i >= 0 && i < totalPages) {
         const page = doc.getPage(i);
@@ -76,7 +100,6 @@ router.post('/rotate', upload.single('pdf'), async (req, res) => {
         page.setRotation(degrees((current + rotDegrees) % 360));
       }
     });
-
     const outBytes = await doc.save();
     cleanupFiles(req.file);
     sendPdf(res, outBytes, 'fukpdf-rotate.pdf');
@@ -86,27 +109,34 @@ router.post('/rotate', upload.single('pdf'), async (req, res) => {
   }
 });
 
+/* ── ORGANIZE / REORDER — qpdf with pdf-lib fallback ────────────────────── */
 router.post('/organize', upload.single('pdf'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Please upload a PDF file.' });
   try {
-    if (!req.file) return res.status(400).json({ error: 'Please upload a PDF file.' });
     const bytes = fs.readFileSync(req.file.path);
     const doc = await PDFDocument.load(bytes);
     const totalPages = doc.getPageCount();
-
-    const orderStr = req.body.pageOrder || Array.from({ length: totalPages }, (_, i) => i + 1).join(',');
+    const orderStr = req.body.pageOrder ||
+      Array.from({ length: totalPages }, (_, i) => i + 1).join(',');
     const order = orderStr.split(',')
-      .map(s => parseInt(s.trim()) - 1)
-      .filter(n => !isNaN(n) && n >= 0 && n < totalPages);
-
+      .map(s => parseInt(s.trim()))
+      .filter(n => !isNaN(n) && n >= 1 && n <= totalPages);
     if (order.length === 0) {
       cleanupFiles(req.file);
       return res.status(400).json({ error: 'Invalid page order. Use comma-separated 1-indexed page numbers.' });
     }
 
-    const newDoc = await PDFDocument.create();
-    const pages = await newDoc.copyPages(doc, order);
-    pages.forEach(page => newDoc.addPage(page));
+    try {
+      const buf = await qpdfReorder(req.file.path, order);
+      cleanupFiles(req.file);
+      return sendPdf(res, buf, 'fukpdf-organize.pdf');
+    } catch (qErr) {
+      console.warn('[organize] qpdf failed, falling back to pdf-lib:', qErr.message);
+    }
 
+    const newDoc = await PDFDocument.create();
+    const pages = await newDoc.copyPages(doc, order.map(n => n - 1));
+    pages.forEach(page => newDoc.addPage(page));
     const outBytes = await newDoc.save();
     cleanupFiles(req.file);
     sendPdf(res, outBytes, 'fukpdf-organize.pdf');
@@ -116,17 +146,16 @@ router.post('/organize', upload.single('pdf'), async (req, res) => {
   }
 });
 
+/* ── CROP (unchanged — pdf-lib is correct here) ─────────────────────────── */
 router.post('/crop', upload.single('pdf'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'Please upload a PDF file.' });
     const bytes = fs.readFileSync(req.file.path);
     const doc = await PDFDocument.load(bytes);
-
     const cropLeft   = clamp(parseFloat(req.body.cropLeft)   || 0, 0, 49) / 100;
     const cropRight  = clamp(parseFloat(req.body.cropRight)  || 0, 0, 49) / 100;
     const cropTop    = clamp(parseFloat(req.body.cropTop)    || 0, 0, 49) / 100;
     const cropBottom = clamp(parseFloat(req.body.cropBottom) || 0, 0, 49) / 100;
-
     doc.getPages().forEach(page => {
       const { width, height } = page.getSize();
       page.setCropBox(
@@ -136,7 +165,6 @@ router.post('/crop', upload.single('pdf'), async (req, res) => {
         height * (1 - cropTop - cropBottom)
       );
     });
-
     const outBytes = await doc.save();
     cleanupFiles(req.file);
     sendPdf(res, outBytes, 'fukpdf-crop.pdf');
@@ -162,10 +190,6 @@ function parsePageRange(rangeStr, totalPages) {
   }
   return Array.from(indices).sort((a, b) => a - b);
 }
-
-function clamp(val, min, max) {
-  return Math.min(Math.max(val, min), max);
-}
+function clamp(val, min, max) { return Math.min(Math.max(val, min), max); }
 
 export default router;
-function toggleSidebar(){document.querySelector(".sidebar").classList.toggle("active")}

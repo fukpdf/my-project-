@@ -1,5 +1,4 @@
 import express from 'express';
-import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { exec } from 'child_process';
@@ -13,11 +12,14 @@ import { parse as parseHtml } from 'node-html-parser';
 import { createRequire } from 'module';
 import { cleanupFiles, sendPdf } from '../utils/cleanup.js';
 import { extractPdfText, wrapText, textToPdf } from '../utils/pdfText.js';
+import { createUpload } from '../utils/upload.js';
+import { magickImagesToPdf } from '../utils/pdfTools.js';
 
 const require = createRequire(import.meta.url);
 const execAsync = promisify(exec);
 const router = express.Router();
-const upload = multer({ dest: 'uploads/', limits: { fileSize: 100 * 1024 * 1024 } });
+const upload   = createUpload('pdf',   100 * 1024 * 1024);
+const imgUpload = createUpload('image', 100 * 1024 * 1024);
 
 // ── HELPERS ────────────────────────────────────────────────────────────────
 
@@ -63,18 +65,32 @@ async function imagesToPdf(files, res, filename) {
   sendPdf(res, outBytes, filename);
 }
 
-router.post('/jpg-to-pdf', upload.array('images'), async (req, res) => {
+router.post('/jpg-to-pdf', imgUpload.array('images'), async (req, res) => {
+  if (!req.files || req.files.length === 0)
+    return res.status(400).json({ error: 'Please upload at least one image.' });
   try {
-    if (!req.files || req.files.length === 0)
-      return res.status(400).json({ error: 'Please upload at least one image.' });
+    try {
+      const buf = await magickImagesToPdf(req.files.map(f => f.path));
+      cleanupFiles(req.files);
+      return sendPdf(res, buf, 'fukpdf-jpg-to-pdf.pdf');
+    } catch (mErr) {
+      console.warn('[jpg-to-pdf] ImageMagick failed, falling back to pdf-lib:', mErr.message);
+    }
     await imagesToPdf(req.files, res, 'fukpdf-jpg-to-pdf.pdf');
   } catch (err) { cleanupFiles(req.files); res.status(500).json({ error: err.message }); }
 });
 
-router.post('/scan-to-pdf', upload.array('images'), async (req, res) => {
+router.post('/scan-to-pdf', imgUpload.array('images'), async (req, res) => {
+  if (!req.files || req.files.length === 0)
+    return res.status(400).json({ error: 'Please upload at least one scanned image.' });
   try {
-    if (!req.files || req.files.length === 0)
-      return res.status(400).json({ error: 'Please upload at least one scanned image.' });
+    try {
+      const buf = await magickImagesToPdf(req.files.map(f => f.path));
+      cleanupFiles(req.files);
+      return sendPdf(res, buf, 'fukpdf-scan-to-pdf.pdf');
+    } catch (mErr) {
+      console.warn('[scan-to-pdf] ImageMagick failed, falling back to pdf-lib:', mErr.message);
+    }
     await imagesToPdf(req.files, res, 'fukpdf-scan-to-pdf.pdf');
   } catch (err) { cleanupFiles(req.files); res.status(500).json({ error: err.message }); }
 });

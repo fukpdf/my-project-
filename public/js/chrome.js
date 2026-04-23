@@ -141,7 +141,6 @@ function renderDrawer(){
     ${sectionLinks('image')}
     <div class="drawer-auth">
       <a href="#" class="btn btn-ghost" data-auth="login">Login</a>
-      <a href="#" class="btn btn-ghost" data-auth="signin">Sign In</a>
       <a href="#" class="btn btn-primary" data-auth="signup">Sign Up</a>
     </div>
   `;
@@ -172,7 +171,6 @@ function ensureAuthModal(){
       <button class="auth-close" type="button" aria-label="Close"><i data-lucide="x"></i></button>
       <div class="auth-tabs">
         <button class="auth-tab" data-tab="login">Login</button>
-        <button class="auth-tab" data-tab="signin">Sign In</button>
         <button class="auth-tab" data-tab="signup">Sign Up</button>
       </div>
       <h3 id="auth-title">Welcome back</h3>
@@ -284,6 +282,43 @@ function openAuth(tab){
   document.getElementById('auth-modal').classList.add('open');
   if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
 }
+/* ─────────── Global usage-limit popup ─────────── */
+window.showLimitPopup = function (message, isAnonymous) {
+  let m = document.getElementById('limit-modal');
+  if (!m) {
+    m = document.createElement('div');
+    m.id = 'limit-modal';
+    m.className = 'limit-modal';
+    m.innerHTML = `
+      <div class="limit-back"></div>
+      <div class="limit-card">
+        <button class="limit-close" type="button" aria-label="Close"><i data-lucide="x"></i></button>
+        <div class="limit-icon"><i data-lucide="alert-triangle"></i></div>
+        <h3 id="lim-title">Daily limit reached</h3>
+        <p id="lim-msg"></p>
+        <div class="limit-actions" id="lim-actions"></div>
+      </div>`;
+    document.body.appendChild(m);
+    m.querySelector('.limit-back').addEventListener('click', () => m.classList.remove('open'));
+    m.querySelector('.limit-close').addEventListener('click', () => m.classList.remove('open'));
+  }
+  m.querySelector('#lim-msg').textContent = message || 'You have reached today\'s limit.';
+  const actions = m.querySelector('#lim-actions');
+  actions.innerHTML = isAnonymous
+    ? `<button class="btn btn-primary" id="lim-signup">Sign up to continue</button>
+       <button class="btn btn-ghost" id="lim-close">Maybe later</button>`
+    : `<button class="btn btn-ghost" id="lim-close">Got it</button>`;
+  actions.querySelector('#lim-close').addEventListener('click', () => m.classList.remove('open'));
+  if (isAnonymous) {
+    actions.querySelector('#lim-signup').addEventListener('click', () => {
+      m.classList.remove('open');
+      if (typeof openAuth === 'function') { openAuth(); setAuthTab('signup'); }
+    });
+  }
+  m.classList.add('open');
+  window.lucide && window.lucide.createIcons && window.lucide.createIcons();
+};
+
 function closeAuth(){
   const w = document.getElementById('auth-modal');
   if (w) w.classList.remove('open');

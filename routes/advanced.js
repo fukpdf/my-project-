@@ -7,7 +7,8 @@ import { cleanupFiles, sendPdf } from '../utils/cleanup.js';
 import { extractPdfText, textToPdf, extractiveSummarize, formatBytes } from '../utils/pdfText.js';
 
 const router = express.Router();
-const upload = multer({ dest: 'uploads/', limits: { fileSize: 100 * 1024 * 1024 } });
+import { UPLOAD_DIR } from '../utils/upload.js';
+const upload = multer({ dest: UPLOAD_DIR, limits: { fileSize: 100 * 1024 * 1024 } });
 
 // ── REPAIR ────────────────────────────────────────────────────────────────
 

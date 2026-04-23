@@ -47,8 +47,13 @@ function wireCalc(){
   const modes    = document.querySelectorAll('.calc-mode');
   if (!input || !btn) return;
 
+  const caseSel = document.getElementById('calc-case');
+  const wrap    = document.getElementById('calc-out-wrap');
+  const copyBtn = document.getElementById('calc-copy');
+
   let mode = 'words';
-  let letterCase = 'lowercase';
+  let lastNumber = '';
+
   modes.forEach(m => {
     m.addEventListener('click', () => {
       modes.forEach(x => x.classList.remove('active'));
@@ -57,30 +62,51 @@ function wireCalc(){
       currency.classList.toggle('show', mode === 'currency');
     });
   });
-  document.querySelectorAll('.case-btn').forEach(b => {
-    b.addEventListener('click', () => {
-      document.querySelectorAll('.case-btn').forEach(x => x.classList.remove('active'));
-      b.classList.add('active');
-      letterCase = b.dataset.case;
-    });
-  });
 
   const run = () => {
     const val = (input.value || '').trim();
-    out.classList.remove('show','err');
-    if (!val) { out.textContent = 'Please enter a number.'; out.classList.add('show','err'); return; }
+    out.classList.remove('err');
+    if (wrap) wrap.hidden = false;
+    if (!val) { out.textContent = 'Please enter a number.'; out.classList.add('err'); return; }
     if (typeof window.convertNumberToWords !== 'function') {
-      out.textContent = 'Converter is loading…'; out.classList.add('show','err'); return;
+      out.textContent = 'Converter is loading…'; out.classList.add('err'); return;
     }
+    lastNumber = val;
     const res = window.convertNumberToWords(val, {
-      mode, currency: currency.value, letterCase,
+      mode, currency: currency.value,
+      letterCase: caseSel ? caseSel.value : 'lowercase',
     });
-    if (res.error) { out.textContent = res.error; out.classList.add('show','err'); return; }
+    if (res.error) { out.textContent = res.error; out.classList.add('err'); return; }
     out.textContent = res.text;
-    out.classList.add('show');
   };
+
   btn.addEventListener('click', run);
   input.addEventListener('keydown', e => { if (e.key === 'Enter') run(); });
+
+  // Re-apply case INSTANTLY when dropdown changes (no Convert click required)
+  if (caseSel) {
+    caseSel.addEventListener('change', () => { if (lastNumber) run(); });
+  }
+
+  // Copy button
+  if (copyBtn) {
+    copyBtn.addEventListener('click', async () => {
+      const text = out.textContent || '';
+      if (!text) return;
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta); ta.select();
+        document.execCommand('copy'); ta.remove();
+      }
+      const span = copyBtn.querySelector('span');
+      const orig = span.textContent;
+      span.textContent = 'Copied!';
+      copyBtn.classList.add('copied');
+      setTimeout(() => { span.textContent = orig; copyBtn.classList.remove('copied'); }, 1400);
+    });
+  }
 }
 
 /* ----------------------- live currency converter (160+ currencies) ----------------------- */

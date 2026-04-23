@@ -310,6 +310,18 @@ async function processFile() {
 
   try {
     const response = await fetch(currentTool.apiEndpoint, { method: 'POST', body: formData });
+    if (response.status === 429 || response.status === 413) {
+      const data = await response.json().catch(() => ({}));
+      if (data.error === 'LIMIT_REACHED') {
+        hideProcessing();
+        if (typeof window.showLimitPopup === 'function') {
+          window.showLimitPopup(data.message, !!data.isAnonymous);
+        } else {
+          alert(data.message);
+        }
+        return;
+      }
+    }
     if (response.ok && window.UsageLimit) window.UsageLimit.record(selectedFiles.length);
     const ct = (response.headers.get('content-type') || '').toLowerCase();
 

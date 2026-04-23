@@ -14,19 +14,24 @@ import advancedRouter from './routes/advanced.js';
 import imageRouter from './routes/image.js';
 import authRouter from './routes/auth.js';
 import { SLUG_MAP, buildHtml, getRedirect } from './utils/seo.js';
+import { UPLOAD_DIR, sweepUploads } from './utils/upload.js';
+import { checkUsage, enforcePerFile } from './utils/usage.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const PORT = process.env.PORT||5000;
 const app = express();
+app.set('trust proxy', 1); // we are behind Replit / Railway proxies
 app.use(compression());
 app.use(express.static('public'));
 
-const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
+// Uploads live in /tmp/<UPLOAD_DIR> — ephemeral, Railway-friendly. Files are
+// removed after each request by `cleanupFiles`; this sweep is a 1-hour safety
+// net for any orphans.
+console.log(`[ilovepdf] uploads dir: ${UPLOAD_DIR}`);
+setInterval(sweepUploads, 15 * 60 * 1000); // every 15 min, deletes >1h-old files
+sweepUploads();
 
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -49,13 +54,24 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api', apiLimiter);
-app.use('/api', authRouter);
+app.use('/api', authRouter); // auth routes are NOT subject to usage limits
+
+// Pre-flight quota check on every other POST (before multer parses the body)
+app.use('/api', (req, res, next) => {
+  if (req.method !== 'POST') return next();
+  if (req.path.startsWith('/auth/')) return next();
+  return checkUsage(req, res, next);
+});
+
 app.use('/api', organizeRouter);
 app.use('/api', editRouter);
 app.use('/api', convertRouter);
 app.use('/api', securityRouter);
 app.use('/api', advancedRouter);
 app.use('/api', imageRouter);
+
+// Post-multer per-file size + record usage
+app.use('/api', enforcePerFile);
 
 app.use((err, req, res, next) => {
   if (err.code === 'LIMIT_FILE_SIZE') {
