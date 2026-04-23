@@ -10,85 +10,83 @@
   <meta property="og:site_name" content="ILovePDF">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="/css/home.css">
+  <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-  <div class="app-layout">
 
-    <div class="sidebar-overlay hidden" id="sidebar-overlay"></div>
-    <aside id="sidebar-container" class="sidebar"></aside>
+  <!-- ───────────── Shared Header (filled by chrome.js) ───────────── -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="brand" aria-label="ILovePDF home">
+        <span class="brand-mark"><i data-lucide="file-text"></i></span>
+        <span class="brand-name">ILove<span>PDF</span></span>
+      </a>
 
-    <div class="main-content">
-      <header class="topbar">
-        <button class="menu-toggle" id="menu-toggle" aria-label="Open menu">
+      <nav class="nav" id="nav" aria-label="Main"></nav>
+
+      <div class="header-cta">
+        <a href="#" class="btn btn-ghost" data-auth="login">Login</a>
+        <a href="#" class="btn btn-ghost btn-signin" data-auth="signin">Sign In</a>
+        <a href="#" class="btn btn-primary" data-auth="signup">Sign Up</a>
+        <button class="hamburger" id="hamburger" aria-label="Open menu">
           <i data-lucide="menu"></i>
         </button>
-        <a href="/" class="topbar-title" style="text-decoration:none;display:flex;align-items:center;">
-          <span class="brand-i">ILove</span><span class="brand-pdf">PDF</span>
-        </a>
-
-        <nav class="mega-nav" id="mega-nav" aria-label="Tool categories"></nav>
-
-        <div class="topbar-right">
-          <a href="/" class="btn btn-outline" style="padding:6px 14px;font-size:.8rem;">
-            <i data-lucide="grid-2x2"></i> All Tools
-          </a>
-        </div>
-      </header>
-
-      <main id="tool-content"></main>
-
-      <footer class="site-footer">
-        <div class="footer-inner">
-          <div class="footer-col">
-            <h4 style="color:#fff;font-size:1.05rem;">
-              <span class="brand-i" style="color:#fff;">ILove</span><span class="brand-pdf">PDF</span>
-            </h4>
-            <p style="color:#94a3b8;font-size:.78rem;line-height:1.6;margin-top:8px;">
-              Free PDF &amp; Image tools online. Files are deleted automatically after processing.
-            </p>
-          </div>
-          <div class="footer-col">
-            <h4>Organize &amp; Optimize</h4>
-            <a href="/tool.html?id=merge">Merge PDF</a>
-            <a href="/tool.html?id=split">Split PDF</a>
-            <a href="/tool.html?id=rotate">Rotate PDF</a>
-            <a href="/tool.html?id=compress">Compress PDF</a>
-            <a href="/tool.html?id=organize">Organize PDF</a>
-          </div>
-          <div class="footer-col">
-            <h4>Convert</h4>
-            <a href="/tool.html?id=pdf-to-word">PDF to Word</a>
-            <a href="/tool.html?id=pdf-to-jpg">PDF to JPG</a>
-            <a href="/tool.html?id=word-to-pdf">Word to PDF</a>
-            <a href="/tool.html?id=jpg-to-pdf">JPG to PDF</a>
-            <a href="/tool.html?id=html-to-pdf">HTML to PDF</a>
-          </div>
-          <div class="footer-col">
-            <h4>Edit &amp; Secure</h4>
-            <a href="/tool.html?id=edit">Edit PDF</a>
-            <a href="/tool.html?id=watermark">Watermark</a>
-            <a href="/tool.html?id=sign">Sign PDF</a>
-            <a href="/tool.html?id=protect">Protect PDF</a>
-            <a href="/tool.html?id=unlock">Unlock PDF</a>
-          </div>
-          <div class="footer-col">
-            <h4>Company</h4>
-            <a href="/blog.html">Blog</a>
-            <a href="/privacy.html">Privacy Policy</a>
-            <a href="/terms.html">Terms &amp; Conditions</a>
-            <a href="/disclaimer.html">Disclaimer</a>
-          </div>
-          <div class="footer-bottom">
-            <span>&copy; 2026 ILovePDF — All rights reserved.</span>
-            <span>Files are deleted automatically within seconds.</span>
-          </div>
-        </div>
-      </footer>
+      </div>
     </div>
+  </header>
+
+  <div class="drawer" id="drawer" aria-hidden="true">
+    <div class="drawer-back"></div>
+    <div class="drawer-panel"></div>
   </div>
 
-  <!-- Coming Soon Modal -->
+  <!-- ───────────── Tool content (centered, full-width, NO sidebar) ───────────── -->
+  <main id="tool-content" class="tool-page"></main>
+
+  <!-- ───────────── Shared Footer ───────────── -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-col footer-brand">
+        <a href="/" class="brand" aria-label="ILovePDF home">
+          <span class="brand-mark"><i data-lucide="file-text"></i></span>
+          <span class="brand-name">ILove<span>PDF</span></span>
+        </a>
+        <p>Free PDF &amp; Image tools online. Files are deleted automatically after processing — your privacy comes first.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="/#tools-root">All Tools</a>
+        <a href="/merge-pdf">Merge PDF</a>
+        <a href="/compress-pdf">Compress</a>
+        <a href="/pdf-to-word">PDF to Word</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="#">About</a>
+        <a href="#">Contact</a>
+        <a href="/blog.html">Blog</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="/privacy.html">Privacy</a>
+        <a href="/terms.html">Terms</a>
+        <a href="/disclaimer.html">Disclaimer</a>
+      </div>
+      <div class="footer-col">
+        <h4>Connect</h4>
+        <a href="#">Twitter</a>
+        <a href="#">LinkedIn</a>
+        <a href="#">Support</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ILovePDF — All rights reserved.</span>
+      <span>Files are deleted automatically within seconds.</span>
+    </div>
+  </footer>
+
+  <!-- ───────────── Modals (kept from original tool layout) ───────────── -->
   <div id="coming-soon-modal" class="modal-backdrop hidden" onclick="handleModalBackdropClick(event)">
     <div class="modal-box">
       <button class="modal-close" onclick="closeComingSoonModal()" aria-label="Close"><i data-lucide="x"></i></button>
@@ -102,7 +100,6 @@
     </div>
   </div>
 
-  <!-- Sign Up Required Modal -->
   <div id="signup-modal" class="modal-backdrop signup-modal hidden" onclick="handleSignupBackdrop(event)">
     <div class="modal-box">
       <button class="modal-close" onclick="closeSignupModal()" aria-label="Close"><i data-lucide="x"></i></button>
@@ -120,7 +117,6 @@
     </div>
   </div>
 
-  <!-- Processing Overlay -->
   <div id="processing-overlay" class="processing-overlay hidden" aria-live="polite">
     <div class="processing-card">
       <div class="processing-anim">
@@ -132,7 +128,6 @@
     </div>
   </div>
 
-  <!-- Cookie Consent -->
   <div id="cookie-banner" class="cookie-banner" role="dialog" aria-label="Cookie consent">
     <div class="cookie-inner">
       <div class="cookie-text">
@@ -146,13 +141,11 @@
     </div>
   </div>
 
-  <script src="https://unpkg.com/lucide@latest" defer></script>
-  <script src="js/tools-config.js" defer></script>
-  <script src="js/sidebar.js" defer></script>
-  <script src="js/mega-menu.js" defer></script>
-  <script src="js/auth-ui.js" defer></script>
-  <script src="js/usage-limit.js" defer></script>
-  <script src="js/tool-page.js" defer></script>
-  <script src="js/shared.js" defer></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="/js/chrome.js"></script>
+  <script src="/js/tools-config.js" defer></script>
+  <script src="/js/usage-limit.js" defer></script>
+  <script src="/js/tool-page.js" defer></script>
+  <script src="/js/shared.js" defer></script>
 </body>
 </html>
